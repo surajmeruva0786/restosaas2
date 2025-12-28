@@ -42,11 +42,29 @@ export const getRestaurantById = async (id: string): Promise<Restaurant | null> 
 };
 
 export const addRestaurant = async (restaurant: Omit<Restaurant, 'id' | 'createdAt'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'restaurants'), {
-        ...restaurant,
-        createdAt: Timestamp.now().toDate().toISOString(),
-        dueAmount: 0,
+    // Remove undefined fields to prevent Firestore errors
+    const cleanRestaurant = Object.fromEntries(
+        Object.entries({
+            ...restaurant,
+            createdAt: Timestamp.now().toDate().toISOString(),
+            dueAmount: 0,
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'restaurants'), cleanRestaurant);
+
+    // Automatically initialize settings for the new restaurant
+    await updateSettings(docRef.id, {
+        name: restaurant.name,
+        address: restaurant.address,
+        phone: restaurant.phone,
+        whatsapp: restaurant.whatsapp,
+        openingHours: restaurant.openingHours,
+        isOpen: restaurant.isOpen,
+        cuisine: restaurant.cuisine,
+        rating: restaurant.rating,
     });
+
     return docRef.id;
 };
 
@@ -79,10 +97,15 @@ export const getMenuItems = async (restaurantId: string): Promise<MenuItem[]> =>
 };
 
 export const addMenuItem = async (restaurantId: string, item: Omit<MenuItem, 'id'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'menuItems'), {
-        ...item,
-        restaurantId,
-    });
+    // Remove undefined fields to prevent Firestore errors
+    const cleanItem = Object.fromEntries(
+        Object.entries({
+            ...item,
+            restaurantId,
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'menuItems'), cleanItem);
     return docRef.id;
 };
 
@@ -120,10 +143,15 @@ export const getCategories = async (restaurantId: string): Promise<Category[]> =
 };
 
 export const addCategory = async (restaurantId: string, category: Omit<Category, 'id'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'categories'), {
-        ...category,
-        restaurantId,
-    });
+    // Remove undefined fields to prevent Firestore errors
+    const cleanCategory = Object.fromEntries(
+        Object.entries({
+            ...category,
+            restaurantId,
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'categories'), cleanCategory);
     return docRef.id;
 };
 
@@ -162,12 +190,17 @@ export const getOrders = async (restaurantId: string): Promise<Order[]> => {
 };
 
 export const addOrder = async (restaurantId: string, order: Omit<Order, 'id' | 'createdAt'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'orders'), {
-        ...order,
-        restaurantId,
-        createdAt: Timestamp.now().toDate().toISOString(),
-        status: 'new',
-    });
+    // Remove undefined fields to prevent Firestore errors
+    const cleanOrder = Object.fromEntries(
+        Object.entries({
+            ...order,
+            restaurantId,
+            createdAt: Timestamp.now().toDate().toISOString(),
+            status: 'new',
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'orders'), cleanOrder);
     return docRef.id;
 };
 
@@ -204,12 +237,17 @@ export const addReservation = async (
     restaurantId: string,
     reservation: Omit<Reservation, 'id' | 'createdAt' | 'status'>
 ): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'reservations'), {
-        ...reservation,
-        restaurantId,
-        createdAt: Timestamp.now().toDate().toISOString(),
-        status: 'pending',
-    });
+    // Remove undefined fields to prevent Firestore errors
+    const cleanReservation = Object.fromEntries(
+        Object.entries({
+            ...reservation,
+            restaurantId,
+            createdAt: Timestamp.now().toDate().toISOString(),
+            status: 'pending',
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'reservations'), cleanReservation);
     return docRef.id;
 };
 
@@ -243,11 +281,16 @@ export const getFeedbacks = async (restaurantId: string): Promise<Feedback[]> =>
 };
 
 export const addFeedback = async (restaurantId: string, feedback: Omit<Feedback, 'id' | 'createdAt'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'feedbacks'), {
-        ...feedback,
-        restaurantId,
-        createdAt: Timestamp.now().toDate().toISOString(),
-    });
+    // Remove undefined fields to prevent Firestore errors
+    const cleanFeedback = Object.fromEntries(
+        Object.entries({
+            ...feedback,
+            restaurantId,
+            createdAt: Timestamp.now().toDate().toISOString(),
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'feedbacks'), cleanFeedback);
     return docRef.id;
 };
 
@@ -273,8 +316,13 @@ export const getSettings = async (restaurantId: string): Promise<RestaurantSetti
 };
 
 export const updateSettings = async (restaurantId: string, settings: Partial<RestaurantSettings>): Promise<void> => {
+    // Remove undefined fields to prevent Firestore errors
+    const cleanSettings = Object.fromEntries(
+        Object.entries(settings).filter(([_, value]) => value !== undefined)
+    );
+
     const docRef = doc(db, 'settings', restaurantId);
-    await setDoc(docRef, settings, { merge: true });
+    await setDoc(docRef, cleanSettings, { merge: true });
 };
 
 export const subscribeToSettings = (restaurantId: string, callback: (settings: RestaurantSettings | null) => void) => {
@@ -307,10 +355,15 @@ export const getRestaurantNotifications = async (restaurantId: string): Promise<
 };
 
 export const addPaymentNotification = async (notification: Omit<PaymentNotification, 'id' | 'sentAt'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'paymentNotifications'), {
-        ...notification,
-        sentAt: Timestamp.now().toDate().toISOString(),
-    });
+    // Remove undefined fields to prevent Firestore errors
+    const cleanNotification = Object.fromEntries(
+        Object.entries({
+            ...notification,
+            sentAt: Timestamp.now().toDate().toISOString(),
+        }).filter(([_, value]) => value !== undefined)
+    );
+
+    const docRef = await addDoc(collection(db, 'paymentNotifications'), cleanNotification);
     return docRef.id;
 };
 

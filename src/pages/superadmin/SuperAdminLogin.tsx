@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
 import { Lock, User, Crown } from 'lucide-react';
@@ -15,10 +15,11 @@ export default function SuperAdminLogin() {
   const [error, setError] = useState('');
 
   // Redirect if already authenticated
-  if (isSuperAdmin) {
-    navigate('/superadmin/dashboard');
-    return null;
-  }
+  useEffect(() => {
+    if (isSuperAdmin) {
+      navigate('/superadmin/dashboard');
+    }
+  }, [isSuperAdmin, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

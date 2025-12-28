@@ -4,46 +4,47 @@ import { Link } from 'react-router-dom';
 import PaymentNotificationBanner from '../../components/PaymentNotificationBanner';
 
 export default function AdminDashboard() {
-  const { orders, reservations, feedbacks, settings } = useData();
+  const { orders, reservations, feedbacks, settings, loading } = useData();
+
+  // Debug logging
+  console.log('AdminDashboard - Loading:', loading);
+  console.log('AdminDashboard - Orders:', orders.length, orders);
+  console.log('AdminDashboard - Reservations:', reservations.length, reservations);
 
   const today = new Date().toISOString().split('T')[0];
   const todayOrders = orders.filter(
     order => order.createdAt.split('T')[0] === today
   );
-  const pendingOrders = orders.filter(order => order.status === 'new');
-  const todayReservations = reservations.filter(
-    res => res.date === today && res.status !== 'cancelled'
-  );
-  const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
 
   const stats = [
     {
-      label: "Today's Orders",
-      value: todayOrders.length,
-      icon: ShoppingBag,
-      color: 'bg-blue-50 text-blue-600',
-      link: '/admin/orders',
-    },
-    {
-      label: 'Pending Orders',
-      value: pendingOrders.length,
+      label: 'Total Orders',
+      value: orders.length,
       icon: ShoppingBag,
       color: 'bg-orange-50 text-orange-600',
       link: '/admin/orders',
     },
     {
-      label: "Today's Reservations",
-      value: todayReservations.length,
+      label: 'Total Reservations',
+      value: reservations.length,
       icon: Calendar,
       color: 'bg-green-50 text-green-600',
       link: '/admin/reservations',
     },
     {
-      label: "Today's Revenue",
-      value: `₹${todayRevenue}`,
+      label: 'Total Revenue',
+      value: `₹${totalRevenue}`,
       icon: TrendingUp,
       color: 'bg-purple-50 text-purple-600',
       link: '/admin/orders',
+    },
+    {
+      label: 'Total Feedback',
+      value: feedbacks.length,
+      icon: MessageSquare,
+      color: 'bg-blue-50 text-blue-600',
+      link: '/admin/feedback',
     },
   ];
 
@@ -106,13 +107,12 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs ${
-                        order.status === 'new'
-                          ? 'bg-orange-100 text-orange-700'
-                          : order.status === 'preparing'
+                      className={`px-3 py-1 rounded-full text-xs ${order.status === 'new'
+                        ? 'bg-orange-100 text-orange-700'
+                        : order.status === 'preparing'
                           ? 'bg-blue-100 text-blue-700'
                           : 'bg-green-100 text-green-700'
-                      }`}
+                        }`}
                     >
                       {order.status}
                     </span>
@@ -147,9 +147,8 @@ export default function AdminDashboard() {
                           {[...Array(5)].map((_, i) => (
                             <span
                               key={i}
-                              className={`text-sm ${
-                                i < feedback.rating ? 'text-orange-400' : 'text-gray-300'
-                              }`}
+                              className={`text-sm ${i < feedback.rating ? 'text-orange-400' : 'text-gray-300'
+                                }`}
                             >
                               ★
                             </span>

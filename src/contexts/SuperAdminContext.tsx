@@ -84,6 +84,36 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
     // Seed initial data if needed
     firebaseService.seedInitialData();
 
+    // One-time sync: Initialize settings for existing restaurants
+    const syncSettings = async () => {
+      const hasRunSync = localStorage.getItem('settingsSyncedV2'); // Changed flag name to re-run
+      if (!hasRunSync) {
+        try {
+          const restaurants = await firebaseService.getRestaurants();
+          for (const restaurant of restaurants) {
+            const settings = await firebaseService.getSettings(restaurant.id);
+            if (!settings) {
+              await firebaseService.updateSettings(restaurant.id, {
+                name: restaurant.name,
+                address: restaurant.address,
+                phone: restaurant.phone,
+                whatsapp: restaurant.whatsapp,
+                openingHours: restaurant.openingHours,
+                isOpen: restaurant.isOpen,
+                cuisine: restaurant.cuisine,
+                rating: restaurant.rating,
+              });
+              console.log(`Initialized settings for: ${restaurant.name}`);
+            }
+          }
+          localStorage.setItem('settingsSyncedV2', 'true');
+        } catch (error) {
+          console.error('Error syncing settings:', error);
+        }
+      }
+    };
+    syncSettings();
+
     return () => {
       unsubscribeRestaurants();
       unsubscribeNotifications();
