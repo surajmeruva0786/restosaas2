@@ -345,13 +345,21 @@ export const updateSettings = async (restaurantId: string, settings: Partial<Res
 };
 
 export const subscribeToSettings = (restaurantId: string, callback: (settings: RestaurantSettings | null) => void) => {
+    console.log('[subscribeToSettings] Subscribing to settings for restaurant:', restaurantId);
     const docRef = doc(db, 'settings', restaurantId);
     return onSnapshot(docRef, (snapshot) => {
+        console.log('[subscribeToSettings] Snapshot received. Exists:', snapshot.exists());
         if (snapshot.exists()) {
-            callback(snapshot.data() as RestaurantSettings);
+            const data = snapshot.data() as RestaurantSettings;
+            console.log('[subscribeToSettings] Settings data:', data);
+            callback(data);
         } else {
+            console.warn('[subscribeToSettings] Settings document does not exist for restaurant:', restaurantId);
             callback(null);
         }
+    }, (error) => {
+        console.error('[subscribeToSettings] Error subscribing to settings:', error);
+        callback(null);
     });
 };
 

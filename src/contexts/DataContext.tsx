@@ -111,8 +111,11 @@ export function DataProvider({ children, restaurantSlug }: { children: ReactNode
   // Resolve restaurant ID from either auth context or slug
   useEffect(() => {
     const resolveRestaurantId = async () => {
+      console.log('[DataContext] Resolving restaurant ID. Auth ID:', auth.restaurantId, 'Slug:', restaurantSlug);
+
       // Priority 1: Use authenticated restaurant ID
       if (auth.restaurantId) {
+        console.log('[DataContext] Using authenticated restaurant ID:', auth.restaurantId);
         setRestaurantId(auth.restaurantId);
         return;
       }
@@ -120,13 +123,19 @@ export function DataProvider({ children, restaurantSlug }: { children: ReactNode
       // Priority 2: Use slug to find restaurant ID
       if (restaurantSlug) {
         try {
+          console.log('[DataContext] Fetching restaurant by slug:', restaurantSlug);
           const restaurant = await firebaseService.getRestaurantBySlug(restaurantSlug);
           if (restaurant) {
+            console.log('[DataContext] Found restaurant:', restaurant.id, restaurant.name);
             setRestaurantId(restaurant.id);
+          } else {
+            console.warn('[DataContext] No restaurant found for slug:', restaurantSlug);
           }
         } catch (error) {
-          console.error('Error resolving restaurant by slug:', error);
+          console.error('[DataContext] Error resolving restaurant by slug:', error);
         }
+      } else {
+        console.warn('[DataContext] No restaurant slug or auth ID provided');
       }
     };
 
@@ -136,19 +145,23 @@ export function DataProvider({ children, restaurantSlug }: { children: ReactNode
   // Subscribe to real-time updates when restaurantId changes
   useEffect(() => {
     if (!restaurantId) {
+      console.log('[DataContext] No restaurant ID, skipping subscriptions');
       setLoading(false);
       return;
     }
 
+    console.log('[DataContext] Setting up subscriptions for restaurant:', restaurantId);
     setLoading(true);
 
     // Subscribe to menu items
     const unsubscribeMenuItems = firebaseService.subscribeToMenuItems(restaurantId, (data) => {
+      console.log('[DataContext] Menu items updated:', data.length, 'items');
       setMenuItems(data);
     });
 
     // Subscribe to categories
     const unsubscribeCategories = firebaseService.subscribeToCategories(restaurantId, (data) => {
+      console.log('[DataContext] Categories updated:', data.length, 'categories');
       setCategories(data);
     });
 
@@ -169,13 +182,19 @@ export function DataProvider({ children, restaurantSlug }: { children: ReactNode
 
     // Subscribe to settings
     const unsubscribeSettings = firebaseService.subscribeToSettings(restaurantId, (data) => {
+      console.log('[DataContext] Settings callback received. Data exists:', !!data);
       if (data) {
+        console.log('[DataContext] Setting restaurant settings:', data);
         setSettings(data);
+      } else {
+        console.warn('[DataContext] No settings found, keeping initial settings');
+        // Keep initial settings if no settings document exists
       }
       setLoading(false);
     });
 
     return () => {
+      console.log('[DataContext] Cleaning up subscriptions for restaurant:', restaurantId);
       unsubscribeMenuItems();
       unsubscribeCategories();
       unsubscribeOrders();
