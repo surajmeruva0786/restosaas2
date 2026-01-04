@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { SuperAdminProvider } from './contexts/SuperAdminContext';
@@ -46,15 +45,13 @@ export default function App() {
               path="/r/:slug/*"
               element={
                 <CustomerRouteWrapper>
-                  <CartProvider>
-                    <Routes>
-                      <Route index element={<RestaurantHome />} />
-                      <Route path="menu" element={<MenuPage />} />
-                      <Route path="checkout" element={<CheckoutPage />} />
-                      <Route path="reserve" element={<ReservePage />} />
-                      <Route path="feedback" element={<FeedbackPage />} />
-                    </Routes>
-                  </CartProvider>
+                  <Routes>
+                    <Route index element={<RestaurantHome />} />
+                    <Route path="menu" element={<MenuPage />} />
+                    <Route path="checkout" element={<CheckoutPage />} />
+                    <Route path="reserve" element={<ReservePage />} />
+                    <Route path="feedback" element={<FeedbackPage />} />
+                  </Routes>
                 </CustomerRouteWrapper>
               }
             />

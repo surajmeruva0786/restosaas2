@@ -23,22 +23,50 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({ children, restaurantId }: { children: ReactNode; restaurantId?: string }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [currentRestaurantId, setCurrentRestaurantId] = useState<string | null>(null);
 
-  // Load cart from localStorage on mount
+  // Generate restaurant-specific cart key
+  const getCartKey = (restId: string) => `cart_${restId}`;
+
+  // Load cart from localStorage when restaurantId changes
   useEffect(() => {
-    const saved = localStorage.getItem('cart');
-    if (saved) {
-      setItems(JSON.parse(saved));
+    if (!restaurantId) {
+      console.log('[CartContext] No restaurant ID provided, cart will not persist');
+      setItems([]);
+      return;
     }
-  }, []);
 
-  // Save cart to localStorage whenever it changes
+    // If restaurant changed, clear current cart and load new one
+    if (currentRestaurantId && currentRestaurantId !== restaurantId) {
+      console.log('[CartContext] Restaurant changed from', currentRestaurantId, 'to', restaurantId, '- clearing cart');
+      setItems([]);
+    }
+
+    setCurrentRestaurantId(restaurantId);
+
+    const cartKey = getCartKey(restaurantId);
+    const saved = localStorage.getItem(cartKey);
+
+    if (saved) {
+      console.log('[CartContext] Loading cart for restaurant:', restaurantId);
+      setItems(JSON.parse(saved));
+    } else {
+      console.log('[CartContext] No saved cart for restaurant:', restaurantId);
+      setItems([]);
+    }
+  }, [restaurantId]);
+
+  // Save cart to localStorage whenever it changes (scoped to current restaurant)
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
+    if (!currentRestaurantId) return;
+
+    const cartKey = getCartKey(currentRestaurantId);
+    localStorage.setItem(cartKey, JSON.stringify(items));
+    console.log('[CartContext] Saved cart for restaurant:', currentRestaurantId, 'Items:', items.length);
+  }, [items, currentRestaurantId]);
 
   const addItem = (item: Omit<CartItem, 'quantity'>) => {
     setItems(prev => {
