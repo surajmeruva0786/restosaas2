@@ -32,6 +32,33 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
     nextPaymentDue: '',
   });
 
+  // Helper function to safely convert nextPaymentDue to date string
+  const formatDateForInput = (date: string | Date | undefined): string => {
+    if (!date) return '';
+
+    try {
+      // If it's already a string, try to parse it
+      if (typeof date === 'string') {
+        return date.split('T')[0];
+      }
+
+      // If it's a Date object, convert to ISO string
+      if (date instanceof Date) {
+        return date.toISOString().split('T')[0];
+      }
+
+      // If it has a toDate method (Firestore Timestamp), convert it
+      if (typeof (date as any).toDate === 'function') {
+        return (date as any).toDate().toISOString().split('T')[0];
+      }
+
+      return '';
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
   useEffect(() => {
     if (editingRestaurant) {
       setFormData({
@@ -50,7 +77,7 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
         isActive: editingRestaurant.isActive,
         subscription: editingRestaurant.subscription,
         dueAmount: editingRestaurant.dueAmount.toString(),
-        nextPaymentDue: editingRestaurant.nextPaymentDue?.split('T')[0] || '',
+        nextPaymentDue: formatDateForInput(editingRestaurant.nextPaymentDue),
       });
     }
   }, [editingRestaurant]);
@@ -74,7 +101,7 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
       isActive: formData.isActive,
       subscription: formData.subscription,
       dueAmount: parseFloat(formData.dueAmount),
-      nextPaymentDue: formData.nextPaymentDue ? new Date(formData.nextPaymentDue) : undefined,
+      nextPaymentDue: formData.nextPaymentDue ? new Date(formData.nextPaymentDue).toISOString() : undefined,
     };
 
     if (restaurantId) {

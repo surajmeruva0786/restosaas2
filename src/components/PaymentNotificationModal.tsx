@@ -14,10 +14,37 @@ export default function PaymentNotificationModal({
   const { restaurants, sendPaymentNotification } = useSuperAdmin();
   const restaurant = restaurants.find(r => r.id === restaurantId);
 
+  // Helper function to safely convert nextPaymentDue to date string
+  const formatDateForInput = (date: string | Date | undefined): string => {
+    if (!date) return '';
+
+    try {
+      // If it's already a string, try to parse it
+      if (typeof date === 'string') {
+        return date.split('T')[0];
+      }
+
+      // If it's a Date object, convert to ISO string
+      if (date instanceof Date) {
+        return date.toISOString().split('T')[0];
+      }
+
+      // If it has a toDate method (Firestore Timestamp), convert it
+      if (typeof (date as any).toDate === 'function') {
+        return (date as any).toDate().toISOString().split('T')[0];
+      }
+
+      return '';
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
   const [formData, setFormData] = useState({
     amount: restaurant?.dueAmount?.toString() || '',
     message: `Dear ${restaurant?.name},\n\nThis is a friendly reminder that you have a pending payment of ₹${restaurant?.dueAmount} for your ${restaurant?.subscription} subscription.\n\nPlease settle this amount at your earliest convenience to avoid any service interruption.\n\nThank you for your cooperation.`,
-    dueDate: restaurant?.nextPaymentDue?.split('T')[0] || '',
+    dueDate: formatDateForInput(restaurant?.nextPaymentDue),
   });
 
   const [sent, setSent] = useState(false);
