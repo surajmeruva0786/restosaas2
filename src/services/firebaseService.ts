@@ -68,10 +68,29 @@ export const addRestaurant = async (restaurant: Omit<Restaurant, 'id' | 'created
     return docRef.id;
 };
 
+
 export const updateRestaurant = async (id: string, data: Partial<Restaurant>): Promise<void> => {
     const docRef = doc(db, 'restaurants', id);
     await updateDoc(docRef, data as DocumentData);
+
+    // Sync relevant fields to settings collection for customer-facing pages
+    const settingsToSync: Partial<RestaurantSettings> = {};
+
+    if (data.name !== undefined) settingsToSync.name = data.name;
+    if (data.address !== undefined) settingsToSync.address = data.address;
+    if (data.phone !== undefined) settingsToSync.phone = data.phone;
+    if (data.whatsapp !== undefined) settingsToSync.whatsapp = data.whatsapp;
+    if (data.openingHours !== undefined) settingsToSync.openingHours = data.openingHours;
+    if (data.isOpen !== undefined) settingsToSync.isOpen = data.isOpen;
+    if (data.cuisine !== undefined) settingsToSync.cuisine = data.cuisine;
+    if (data.rating !== undefined) settingsToSync.rating = data.rating;
+
+    // Only update settings if there are fields to sync
+    if (Object.keys(settingsToSync).length > 0) {
+        await updateSettings(id, settingsToSync);
+    }
 };
+
 
 export const deleteRestaurant = async (id: string): Promise<void> => {
     const docRef = doc(db, 'restaurants', id);
