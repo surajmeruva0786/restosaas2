@@ -22,11 +22,11 @@ export default function AdminLogin() {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const success = login(
+    const success = await login(
       formData.username,
       formData.password,
       formData.restaurantId
