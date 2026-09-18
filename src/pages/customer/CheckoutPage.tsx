@@ -20,9 +20,13 @@ export default function CheckoutPage() {
 
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
 
     const order = {
       items: items.map(item => ({
@@ -40,11 +44,18 @@ export default function CheckoutPage() {
       status: 'new' as const,
     };
 
-    addOrder(order);
-    const newOrderId = `ORD${Date.now().toString().slice(-6)}`;
-    setOrderId(newOrderId);
-    setSubmitted(true);
-    clearCart();
+    try {
+      await addOrder(order);
+      const newOrderId = `ORD${Date.now().toString().slice(-6)}`;
+      setOrderId(newOrderId);
+      clearCart();
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Failed to place order:', err);
+      setError('Failed to place your order. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (items.length === 0 && !submitted) {
@@ -228,11 +239,18 @@ export default function CheckoutPage() {
               />
             </div>
 
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors"
+              disabled={loading}
+              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Place Order - ₹{totalPrice}
+              {loading ? 'Placing Order...' : `Place Order - ₹${totalPrice}`}
             </button>
           </div>
         </form>
