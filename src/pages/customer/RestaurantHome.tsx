@@ -18,7 +18,11 @@ import { useEffect, useRef } from 'react';
 
 export default function RestaurantHome() {
   const { slug } = useParams();
-  const { settings } = useData();
+  const { settings, feedbacks } = useData();
+  
+  const averageRating = feedbacks?.length > 0
+    ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length).toFixed(1)
+    : settings.rating;
   const menuRef = useRef<HTMLDivElement>(null);
   const reserveRef = useRef<HTMLDivElement>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
@@ -70,10 +74,10 @@ export default function RestaurantHome() {
                 >
                   {settings.isOpen ? 'Open Now' : 'Closed'}
                 </span>
-                {settings.rating && (
+                {averageRating && (
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-current" />
-                    <span>{settings.rating}</span>
+                    <span>{averageRating}</span>
                   </div>
                 )}
               </div>
