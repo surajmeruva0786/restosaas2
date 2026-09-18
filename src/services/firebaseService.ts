@@ -247,8 +247,7 @@ export const subscribeToOrders = (restaurantId: string, callback: (orders: Order
 export const getReservations = async (restaurantId: string): Promise<Reservation[]> => {
     const q = query(
         collection(db, 'reservations'),
-        where('restaurantId', '==', restaurantId),
-        orderBy('createdAt', 'desc')
+        where('restaurantId', '==', restaurantId)
     );
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
@@ -280,12 +279,13 @@ export const updateReservationStatus = async (id: string, status: Reservation['s
 export const subscribeToReservations = (restaurantId: string, callback: (reservations: Reservation[]) => void) => {
     const q = query(
         collection(db, 'reservations'),
-        where('restaurantId', '==', restaurantId),
-        orderBy('createdAt', 'desc')
+        where('restaurantId', '==', restaurantId)
     );
     return onSnapshot(q, (snapshot) => {
         const reservations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
         callback(reservations);
+    }, (error) => {
+        console.error('Error in subscribeToReservations:', error);
     });
 };
 
