@@ -1,50 +1,124 @@
 import { useState } from 'react';
 import { useData } from '../../contexts/DataContext';
-import { Clock, User, Phone, MapPin, StickyNote, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, User, Phone, MapPin, StickyNote, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import type { Order } from '../../contexts/DataContext';
+
+type OrderStatus = Order['status'];
 
 export default function AdminOrders() {
   const { orders, updateOrderStatus } = useData();
-  const [filter, setFilter] = useState<'all' | 'new' | 'accepted' | 'preparing' | 'completed' | 'rejected'>('all');
+  const [filter, setFilter] = useState<'all' | OrderStatus>('all');
 
   const filteredOrders =
     filter === 'all' ? orders : orders.filter(order => order.status === filter);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
-      case 'new':
-        return 'bg-orange-100 text-orange-700 border border-orange-200';
-      case 'accepted':
-        return 'bg-teal-100 text-teal-700 border border-teal-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-700 border border-red-200';
-      case 'preparing':
-        return 'bg-blue-100 text-blue-700 border border-blue-200';
-      case 'completed':
-        return 'bg-green-100 text-green-700 border border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border border-gray-200';
+      case 'new':       return 'bg-orange-100 text-orange-700 border border-orange-200';
+      case 'accepted':  return 'bg-teal-100 text-teal-700 border border-teal-200';
+      case 'rejected':  return 'bg-red-100 text-red-700 border border-red-200';
+      case 'preparing': return 'bg-blue-100 text-blue-700 border border-blue-200';
+      case 'completed': return 'bg-green-100 text-green-700 border border-green-200';
     }
   };
 
-  const getCardBorder = (status: string) => {
+  const getCardBorder = (status: OrderStatus) => {
     switch (status) {
-      case 'new':      return 'border-orange-300';
-      case 'accepted': return 'border-teal-300';
-      case 'preparing':return 'border-blue-300';
-      case 'completed':return 'border-green-300';
-      case 'rejected': return 'border-red-200';
-      default:         return 'border-gray-200';
+      case 'new':       return 'border-orange-300';
+      case 'accepted':  return 'border-teal-300';
+      case 'preparing': return 'border-blue-300';
+      case 'completed': return 'border-green-300';
+      case 'rejected':  return 'border-red-300';
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: OrderStatus) => {
     switch (status) {
       case 'new':       return 'New';
       case 'accepted':  return 'Accepted';
       case 'rejected':  return 'Rejected';
       case 'preparing': return 'Preparing';
       case 'completed': return 'Completed';
-      default:          return status;
+    }
+  };
+
+  // Renders the correct action buttons for each status
+  const renderActions = (order: Order) => {
+    switch (order.status) {
+
+      case 'new':
+        return (
+          <>
+            <button
+              onClick={() => updateOrderStatus(order.id, 'accepted')}
+              className="flex items-center gap-1.5 px-4 py-2 bg-teal-500 text-white text-sm rounded-lg hover:bg-teal-600 transition-colors"
+            >
+              <CheckCircle className="w-4 h-4" />
+              Accept
+            </button>
+            <button
+              onClick={() => updateOrderStatus(order.id, 'rejected')}
+              className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+            >
+              <XCircle className="w-4 h-4" />
+              Reject
+            </button>
+          </>
+        );
+
+      case 'accepted':
+        return (
+          <>
+            <button
+              onClick={() => updateOrderStatus(order.id, 'preparing')}
+              className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Mark as Preparing
+            </button>
+            <button
+              onClick={() => updateOrderStatus(order.id, 'rejected')}
+              className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+            >
+              <XCircle className="w-4 h-4" />
+              Reject
+            </button>
+          </>
+        );
+
+      case 'rejected':
+        return (
+          <button
+            onClick={() => updateOrderStatus(order.id, 'accepted')}
+            className="flex items-center gap-1.5 px-4 py-2 bg-teal-500 text-white text-sm rounded-lg hover:bg-teal-600 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Undo — Accept
+          </button>
+        );
+
+      case 'preparing':
+        return (
+          <>
+            <button
+              onClick={() => updateOrderStatus(order.id, 'completed')}
+              className="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Mark as Completed
+            </button>
+            <button
+              onClick={() => updateOrderStatus(order.id, 'accepted')}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Back to Accepted
+            </button>
+          </>
+        );
+
+      case 'completed':
+        return (
+          <span className="text-gray-400 text-sm italic">Order completed</span>
+        );
     }
   };
 
@@ -96,47 +170,8 @@ export default function AdminOrders() {
                     {getStatusLabel(order.status)}
                   </span>
 
-                  {/* Action buttons based on current status */}
-                  {order.status === 'new' && (
-                    <>
-                      <button
-                        onClick={() => updateOrderStatus(order.id, 'accepted' as any)}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-teal-500 text-white text-sm rounded-lg hover:bg-teal-600 transition-colors"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => updateOrderStatus(order.id, 'rejected' as any)}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                      >
-                        <XCircle className="w-4 h-4" />
-                        Reject
-                      </button>
-                    </>
-                  )}
-
-                  {order.status === 'accepted' && (
-                    <button
-                      onClick={() => updateOrderStatus(order.id, 'preparing' as any)}
-                      className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                      Mark as Preparing
-                    </button>
-                  )}
-
-                  {order.status === 'preparing' && (
-                    <button
-                      onClick={() => updateOrderStatus(order.id, 'completed' as any)}
-                      className="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
-                    >
-                      Mark as Completed
-                    </button>
-                  )}
-
-                  {(order.status === 'completed' || order.status === 'rejected') && (
-                    <span className="text-gray-400 text-sm italic">No further actions</span>
-                  )}
+                  {/* Action buttons */}
+                  {renderActions(order)}
                 </div>
               </div>
 
