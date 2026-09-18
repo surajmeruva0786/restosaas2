@@ -16,19 +16,27 @@ export default function ReservePage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    addReservation({
-      customerName: formData.customerName,
-      customerPhone: formData.customerPhone,
-      date: formData.date,
-      time: formData.time,
-      numberOfPeople: parseInt(formData.numberOfPeople),
-    });
-
-    setSubmitted(true);
+    try {
+      await addReservation({
+        customerName: formData.customerName,
+        customerPhone: formData.customerPhone,
+        date: formData.date,
+        time: formData.time,
+        numberOfPeople: parseInt(formData.numberOfPeople),
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting reservation:', error);
+      alert('Failed to submit reservation. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -165,9 +173,10 @@ export default function ReservePage() {
 
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors"
+              disabled={isSubmitting}
+              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Book Table
+              {isSubmitting ? 'Booking...' : 'Book Table'}
             </button>
           </div>
         </form>
