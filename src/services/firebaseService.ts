@@ -71,8 +71,11 @@ export const addRestaurant = async (restaurant: Omit<Restaurant, 'id' | 'created
 
 
 export const updateRestaurant = async (id: string, data: Partial<Restaurant>): Promise<void> => {
+    const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([_, value]) => value !== undefined)
+    );
     const docRef = doc(db, 'restaurants', id);
-    await updateDoc(docRef, data as DocumentData);
+    await updateDoc(docRef, cleanData);
 
     // Sync relevant fields to settings collection for customer-facing pages
     const settingsToSync: Partial<RestaurantSettings> = {};
