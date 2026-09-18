@@ -28,7 +28,7 @@ export interface Order {
   tableNumber?: string;
   notes?: string;
   total: number;
-  status: 'new' | 'preparing' | 'completed';
+  status: 'new' | 'accepted' | 'rejected' | 'preparing' | 'completed';
   createdAt: string;
 }
 

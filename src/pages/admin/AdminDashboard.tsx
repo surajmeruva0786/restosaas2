@@ -15,7 +15,10 @@ export default function AdminDashboard() {
   const todayOrders = orders.filter(
     order => order.createdAt.split('T')[0] === today
   );
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  // Only count completed orders towards revenue
+  const totalRevenue = orders
+    .filter(order => order.status === 'completed')
+    .reduce((sum, order) => sum + order.total, 0);
 
   const stats = [
     {
@@ -107,12 +110,17 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs ${order.status === 'new'
-                        ? 'bg-orange-100 text-orange-700'
-                        : order.status === 'preparing'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-green-100 text-green-700'
-                        }`}
+                      className={`px-3 py-1 rounded-full text-xs ${
+                        order.status === 'new'
+                          ? 'bg-orange-100 text-orange-700'
+                          : order.status === 'accepted'
+                            ? 'bg-teal-100 text-teal-700'
+                            : order.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : order.status === 'preparing'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-green-100 text-green-700'
+                      }`}
                     >
                       {order.status}
                     </span>
