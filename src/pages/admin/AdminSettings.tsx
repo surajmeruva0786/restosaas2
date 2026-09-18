@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useData } from '../../contexts/DataContext';
 import { Save, ToggleLeft, ToggleRight } from 'lucide-react';
 
@@ -6,12 +6,24 @@ export default function AdminSettings() {
   const { settings, updateSettings } = useData();
   const [formData, setFormData] = useState(settings);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    setFormData(settings);
+  }, [settings]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings(formData);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setSaving(true);
+    try {
+      await updateSettings(formData);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCuisineChange = (value: string) => {
@@ -56,6 +68,20 @@ export default function AdminSettings() {
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Google Maps Directions URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.directionsUrl || ''}
+                  onChange={e => setFormData({ ...formData, directionsUrl: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  placeholder="https://maps.google.com/?q=... or https://goo.gl/maps/..."
+                />
+                <p className="text-gray-500 text-sm mt-1">
+                  Paste your Google Maps link. Customers clicking "Directions" will open this link directly.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,10 +200,11 @@ export default function AdminSettings() {
           <div className="pt-6 border-t border-gray-200">
             <button
               type="submit"
-              className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+              disabled={saving}
+              className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Save className="w-5 h-5" />
-              Save Settings
+              {saving ? 'Saving...' : 'Save Settings'}
             </button>
           </div>
         </div>

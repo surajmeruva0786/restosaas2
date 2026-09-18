@@ -17,6 +17,7 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
     slug: '',
     name: '',
     address: '',
+    directionsUrl: '',
     phone: '',
     whatsapp: '',
     email: '',
@@ -65,6 +66,7 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
         slug: editingRestaurant.slug,
         name: editingRestaurant.name,
         address: editingRestaurant.address,
+        directionsUrl: editingRestaurant.directionsUrl || '',
         phone: editingRestaurant.phone,
         whatsapp: editingRestaurant.whatsapp,
         email: editingRestaurant.email,
@@ -82,13 +84,14 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
     }
   }, [editingRestaurant]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const restaurantData = {
       slug: formData.slug.toLowerCase().replace(/\s+/g, '-'),
       name: formData.name,
       address: formData.address,
+      directionsUrl: formData.directionsUrl.trim(),
       phone: formData.phone,
       whatsapp: formData.whatsapp,
       email: formData.email,
@@ -105,9 +108,9 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
     };
 
     if (restaurantId) {
-      updateRestaurant(restaurantId, restaurantData);
+      await updateRestaurant(restaurantId, restaurantData);
     } else {
-      addRestaurant(restaurantData);
+      await addRestaurant(restaurantData);
     }
 
     onClose();
@@ -165,6 +168,20 @@ export default function RestaurantModal({ restaurantId, onClose }: RestaurantMod
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-gray-700 mb-2">Google Maps Directions URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.directionsUrl}
+                  onChange={e => setFormData({ ...formData, directionsUrl: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  placeholder="https://maps.google.com/?q=... or https://goo.gl/maps/..."
+                />
+                <p className="text-gray-500 text-sm mt-1">
+                  Direct link for customers to navigate to this restaurant via Google Maps
+                </p>
               </div>
 
               <div>

@@ -54,6 +54,7 @@ export interface Feedback {
 export interface RestaurantSettings {
   name: string;
   address: string;
+  directionsUrl?: string;
   phone: string;
   whatsapp: string;
   openingHours: string;
@@ -89,6 +90,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 const initialSettings: RestaurantSettings = {
   name: 'Demo Restaurant',
   address: '123 Food Street, Gourmet City',
+  directionsUrl: '',
   phone: '+91 9876543210',
   whatsapp: '+91 9876543210',
   openingHours: '11:00 AM - 11:00 PM',

@@ -29,10 +29,15 @@ export default function RestaurantHome() {
   };
 
   const handleDirections = () => {
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`,
-      '_blank'
-    );
+    if (settings.directionsUrl && settings.directionsUrl.trim()) {
+      window.open(settings.directionsUrl.trim(), '_blank', 'noopener,noreferrer');
+    } else if (settings.address) {
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`,
+        '_blank',
+        'noopener,noreferrer'
+      );
+    }
   };
 
   const handleCall = () => {
@@ -116,10 +121,14 @@ export default function RestaurantHome() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-4 flex items-start gap-3">
+          <div
+            onClick={handleDirections}
+            className="bg-white rounded-lg shadow-sm p-4 flex items-start gap-3 cursor-pointer hover:shadow-md transition-shadow"
+            title="Get Directions"
+          >
             <MapPin className="w-5 h-5 text-orange-600 flex-shrink-0 mt-1" />
             <div>
-              <p className="text-gray-900 mb-1">Location</p>
+              <p className="text-gray-900 mb-1 font-medium">Location</p>
               <p className="text-gray-600 text-sm">{settings.address}</p>
             </div>
           </div>
@@ -236,10 +245,14 @@ export default function RestaurantHome() {
               cuisine with a focus on quality and taste.
             </p>
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <div
+                onClick={handleDirections}
+                className="flex items-start gap-3 cursor-pointer group"
+                title="Get Directions"
+              >
+                <MapPin className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-gray-900">Address</p>
+                  <p className="text-gray-900 font-medium group-hover:text-orange-600 transition-colors">Address</p>
                   <p className="text-gray-600 text-sm">{settings.address}</p>
                 </div>
               </div>

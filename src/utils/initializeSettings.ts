@@ -24,6 +24,7 @@ export const initializeAllRestaurantSettings = async () => {
                     isOpen: restaurant.isOpen,
                     cuisine: restaurant.cuisine,
                     rating: restaurant.rating,
+                    directionsUrl: restaurant.directionsUrl,
                 });
 
                 console.log(`[initializeAllRestaurantSettings] ✅ Successfully initialized settings for: ${restaurant.name}`);

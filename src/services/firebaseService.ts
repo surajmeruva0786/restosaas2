@@ -57,6 +57,7 @@ export const addRestaurant = async (restaurant: Omit<Restaurant, 'id' | 'created
     await updateSettings(docRef.id, {
         name: restaurant.name,
         address: restaurant.address,
+        directionsUrl: restaurant.directionsUrl,
         phone: restaurant.phone,
         whatsapp: restaurant.whatsapp,
         openingHours: restaurant.openingHours,
@@ -78,6 +79,7 @@ export const updateRestaurant = async (id: string, data: Partial<Restaurant>): P
 
     if (data.name !== undefined) settingsToSync.name = data.name;
     if (data.address !== undefined) settingsToSync.address = data.address;
+    if (data.directionsUrl !== undefined) settingsToSync.directionsUrl = data.directionsUrl;
     if (data.phone !== undefined) settingsToSync.phone = data.phone;
     if (data.whatsapp !== undefined) settingsToSync.whatsapp = data.whatsapp;
     if (data.openingHours !== undefined) settingsToSync.openingHours = data.openingHours;
@@ -342,6 +344,27 @@ export const updateSettings = async (restaurantId: string, settings: Partial<Res
 
     const docRef = doc(db, 'settings', restaurantId);
     await setDoc(docRef, cleanSettings, { merge: true });
+
+    // Also sync to restaurants collection so super admin view reflects changes
+    try {
+        const restaurantDocRef = doc(db, 'restaurants', restaurantId);
+        const restaurantSync: Record<string, any> = {};
+        if (settings.name !== undefined) restaurantSync.name = settings.name;
+        if (settings.address !== undefined) restaurantSync.address = settings.address;
+        if (settings.directionsUrl !== undefined) restaurantSync.directionsUrl = settings.directionsUrl;
+        if (settings.phone !== undefined) restaurantSync.phone = settings.phone;
+        if (settings.whatsapp !== undefined) restaurantSync.whatsapp = settings.whatsapp;
+        if (settings.openingHours !== undefined) restaurantSync.openingHours = settings.openingHours;
+        if (settings.isOpen !== undefined) restaurantSync.isOpen = settings.isOpen;
+        if (settings.cuisine !== undefined) restaurantSync.cuisine = settings.cuisine;
+        if (settings.rating !== undefined) restaurantSync.rating = settings.rating;
+
+        if (Object.keys(restaurantSync).length > 0) {
+            await updateDoc(restaurantDocRef, restaurantSync);
+        }
+    } catch {
+        // Ignore error if restaurant doc doesn't exist (e.g. initial demo setup)
+    }
 };
 
 export const subscribeToSettings = (restaurantId: string, callback: (settings: RestaurantSettings | null) => void) => {

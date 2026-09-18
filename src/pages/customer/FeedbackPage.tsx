@@ -15,22 +15,32 @@ export default function FeedbackPage() {
 
   const [hoveredRating, setHoveredRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
 
     if (formData.rating === 0) {
       alert('Please select a rating');
       return;
     }
 
-    addFeedback({
-      rating: formData.rating,
-      comment: formData.comment,
-      customerName: formData.customerName || undefined,
-    });
-
-    setSubmitted(true);
+    setLoading(true);
+    try {
+      await addFeedback({
+        rating: formData.rating,
+        comment: formData.comment,
+        customerName: formData.customerName || undefined,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Failed to submit feedback:', err);
+      setError('Failed to submit feedback. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -147,11 +157,18 @@ export default function FeedbackPage() {
               />
             </div>
 
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors"
+              disabled={loading}
+              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Submit Feedback
+              {loading ? 'Submitting...' : 'Submit Feedback'}
             </button>
           </div>
         </form>

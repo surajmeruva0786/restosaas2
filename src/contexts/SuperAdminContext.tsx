@@ -6,6 +6,7 @@ export interface Restaurant {
   slug: string;
   name: string;
   address: string;
+  directionsUrl?: string;
   phone: string;
   whatsapp: string;
   email: string;
@@ -102,6 +103,7 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
                 isOpen: restaurant.isOpen,
                 cuisine: restaurant.cuisine,
                 rating: restaurant.rating,
+                directionsUrl: restaurant.directionsUrl,
               });
               console.log(`Initialized settings for: ${restaurant.name}`);
             }

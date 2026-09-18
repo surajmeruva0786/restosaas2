@@ -18,6 +18,7 @@ export const syncRestaurantSettings = async () => {
                 isOpen: restaurant.isOpen,
                 cuisine: restaurant.cuisine,
                 rating: restaurant.rating,
+                directionsUrl: restaurant.directionsUrl,
             });
 
             console.log(`Synced settings for: ${restaurant.name}`);
