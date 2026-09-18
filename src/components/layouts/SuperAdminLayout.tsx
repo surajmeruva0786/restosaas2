@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
 import {
@@ -23,6 +23,11 @@ export default function SuperAdminLayout({ children }: SuperAdminLayoutProps) {
   const navigate = useNavigate();
   const { superAdminLogout } = useSuperAdmin();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = 'Restosas Super Admin';
+  }, []);
+
 
   const handleLogout = () => {
     superAdminLogout();
