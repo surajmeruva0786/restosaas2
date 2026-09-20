@@ -70,7 +70,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
         </div>
 
         {/* Image */}
-        {item.image && !imageError ? (
+        {item.image && !imageError && (
           <div className="mic-img-wrap">
             <img
               src={item.image}
