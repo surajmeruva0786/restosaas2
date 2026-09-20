@@ -1,10 +1,14 @@
 import { useData } from '../../contexts/DataContext';
-import { ShoppingBag, Calendar, MessageSquare, TrendingUp } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useSuperAdmin } from '../../contexts/SuperAdminContext';
+import { ShoppingBag, Calendar, MessageSquare, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PaymentNotificationBanner from '../../components/PaymentNotificationBanner';
 
 export default function AdminDashboard() {
   const { orders, reservations, feedbacks, settings, loading } = useData();
+  const { restaurantId } = useAuth();
+  const { restaurants } = useSuperAdmin();
 
   // Debug logging
   console.log('AdminDashboard - Loading:', loading);
@@ -56,8 +60,40 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Payment Notifications */}
+      {/* Payment Notifications (from super admin) */}
       <PaymentNotificationBanner />
+
+      {/* Persistent Payment Status */}
+      {(() => {
+        const restaurantData = restaurants.find(r => r.id === restaurantId);
+        if (!restaurantData) return null;
+        const isPaid = restaurantData.dueAmount === 0;
+        return (
+          <div
+            className={`flex items-center gap-3 px-5 py-4 rounded-lg border ${
+              isPaid
+                ? 'bg-green-50 border-green-200'
+                : 'bg-orange-50 border-orange-200'
+            }`}
+          >
+            {isPaid ? (
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
+            )}
+            <div>
+              <p className={`font-semibold text-sm ${isPaid ? 'text-green-800' : 'text-orange-800'}`}>
+                {isPaid ? 'Payment Status: Paid' : 'Payment Status: Due'}
+              </p>
+              <p className={`text-xs mt-0.5 ${isPaid ? 'text-green-700' : 'text-orange-700'}`}>
+                {isPaid
+                  ? 'Your account is up to date.'
+                  : 'Your account has a pending payment. Please contact your account manager.'}
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       <div>
         <h1 className="text-gray-900 mb-2">Welcome back!</h1>

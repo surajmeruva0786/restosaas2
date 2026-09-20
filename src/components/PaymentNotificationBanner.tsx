@@ -38,10 +38,6 @@ export default function PaymentNotificationBanner() {
                   {notification.message}
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm">
-                  <div>
-                    <span className="text-red-700">Amount Due: </span>
-                    <span className="text-red-900">₹{notification.amount.toLocaleString()}</span>
-                  </div>
                   {notification.dueDate && (
                     <div>
                       <span className="text-red-700">Due Date: </span>

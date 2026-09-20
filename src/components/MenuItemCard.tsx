@@ -80,10 +80,6 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
             />
             {cartItem && <div className="mic-img-overlay">{cartItem.quantity} in cart</div>}
           </div>
-        ) : (
-          <div className="mic-img-placeholder">
-            <span className="mic-img-emoji">🍽️</span>
-          </div>
         )}
       </div>
     </div>

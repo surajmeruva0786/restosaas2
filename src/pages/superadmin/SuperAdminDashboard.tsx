@@ -1,5 +1,5 @@
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
-import { Store, Users, TrendingUp, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Store, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SuperAdminDashboard() {
@@ -8,12 +8,7 @@ export default function SuperAdminDashboard() {
   const totalRestaurants = restaurants.length;
   const activeRestaurants = restaurants.filter(r => r.isActive).length;
   const inactiveRestaurants = restaurants.filter(r => !r.isActive).length;
-  
-  const subscriptionCounts = {
-    trial: restaurants.filter(r => r.subscription === 'trial').length,
-    basic: restaurants.filter(r => r.subscription === 'basic').length,
-    premium: restaurants.filter(r => r.subscription === 'premium').length,
-  };
+  const paymentDueCount = restaurants.filter(r => r.dueAmount > 0).length;
 
   const stats = [
     {
@@ -38,11 +33,11 @@ export default function SuperAdminDashboard() {
       link: '/superadmin/restaurants',
     },
     {
-      label: 'Premium Plans',
-      value: subscriptionCounts.premium,
-      icon: TrendingUp,
-      color: 'bg-purple-50 text-purple-600',
-      link: '/superadmin/restaurants',
+      label: 'Payment Due',
+      value: paymentDueCount,
+      icon: AlertCircle,
+      color: 'bg-orange-50 text-orange-600',
+      link: '/superadmin/payments',
     },
   ];
 
@@ -79,61 +74,6 @@ export default function SuperAdminDashboard() {
         })}
       </div>
 
-      {/* Subscription Breakdown */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-gray-900 mb-4">Subscription Plans</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-700">Trial</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                {subscriptionCounts.trial}
-              </span>
-            </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gray-400"
-                style={{
-                  width: `${(subscriptionCounts.trial / totalRestaurants) * 100}%`,
-                }}
-              />
-            </div>
-          </div>
-          <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-blue-900">Basic</span>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                {subscriptionCounts.basic}
-              </span>
-            </div>
-            <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-blue-500"
-                style={{
-                  width: `${(subscriptionCounts.basic / totalRestaurants) * 100}%`,
-                }}
-              />
-            </div>
-          </div>
-          <div className="p-4 border border-purple-200 rounded-lg bg-purple-50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-900">Premium</span>
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                {subscriptionCounts.premium}
-              </span>
-            </div>
-            <div className="h-2 bg-purple-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-purple-500"
-                style={{
-                  width: `${(subscriptionCounts.premium / totalRestaurants) * 100}%`,
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Recent Restaurants */}
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
@@ -164,17 +104,11 @@ export default function SuperAdminDashboard() {
                       >
                         {restaurant.isActive ? 'Active' : 'Inactive'}
                       </span>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          restaurant.subscription === 'premium'
-                            ? 'bg-purple-100 text-purple-700'
-                            : restaurant.subscription === 'basic'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {restaurant.subscription}
-                      </span>
+                      {restaurant.dueAmount > 0 && (
+                        <span className="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-700">
+                          Payment Due
+                        </span>
+                      )}
                     </div>
                     <p className="text-gray-600 text-sm mb-1">{restaurant.address}</p>
                     <p className="text-gray-500 text-sm">

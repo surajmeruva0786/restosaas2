@@ -1,45 +1,31 @@
 import { useState } from 'react';
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
-import { DollarSign, Send, AlertCircle, CheckCircle, Clock, Search } from 'lucide-react';
+import { Send, AlertCircle, CheckCircle, Search } from 'lucide-react';
 import PaymentNotificationModal from '../../components/PaymentNotificationModal';
 
 export default function PaymentManagement() {
   const { restaurants, notifications, updateRestaurant } = useSuperAdmin();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'overdue' | 'upcoming' | 'paid'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'due' | 'paid'>('all');
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
 
-  const today = new Date();
-
-  const restaurantsWithPaymentStatus = restaurants.map(restaurant => {
-    const nextDue = restaurant.nextPaymentDue ? new Date(restaurant.nextPaymentDue) : null;
-    const isOverdue = nextDue && nextDue < today && restaurant.dueAmount > 0;
-    const isUpcoming = nextDue && nextDue > today && nextDue.getTime() - today.getTime() < 7 * 24 * 60 * 60 * 1000;
+  const restaurantsWithStatus = restaurants.map(restaurant => {
     const isPaid = restaurant.dueAmount === 0;
-    
     const pendingNotifications = notifications.filter(
       n => n.restaurantId === restaurant.id && n.status === 'pending'
     ).length;
-
-    return {
-      ...restaurant,
-      isOverdue,
-      isUpcoming,
-      isPaid,
-      pendingNotifications,
-    };
+    return { ...restaurant, isPaid, pendingNotifications };
   });
 
-  const filteredRestaurants = restaurantsWithPaymentStatus.filter(restaurant => {
+  const filteredRestaurants = restaurantsWithStatus.filter(restaurant => {
     const matchesSearch =
       restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       restaurant.email.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesFilter =
       filterStatus === 'all' ||
-      (filterStatus === 'overdue' && restaurant.isOverdue) ||
-      (filterStatus === 'upcoming' && restaurant.isUpcoming) ||
+      (filterStatus === 'due' && !restaurant.isPaid) ||
       (filterStatus === 'paid' && restaurant.isPaid);
 
     return matchesSearch && matchesFilter;
@@ -50,59 +36,40 @@ export default function PaymentManagement() {
     setShowNotificationModal(true);
   };
 
-  const handleMarkAsPaid = (restaurantId: string) => {
-    if (confirm('Mark this restaurant as paid? This will clear the due amount.')) {
+  const handleTogglePaid = (restaurantId: string, currentlyPaid: boolean) => {
+    if (currentlyPaid) {
+      // Mark as due (set a nominal due flag)
+      updateRestaurant(restaurantId, { dueAmount: 1 });
+    } else {
+      // Mark as paid
       updateRestaurant(restaurantId, {
         dueAmount: 0,
         lastPaymentDate: new Date().toISOString(),
-        nextPaymentDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       });
     }
   };
 
-  const handleUpdateDueAmount = (restaurantId: string, currentAmount: number) => {
-    const amount = prompt(`Update due amount for this restaurant (current: ₹${currentAmount}):`);
-    if (amount !== null) {
-      const numAmount = parseFloat(amount);
-      if (!isNaN(numAmount) && numAmount >= 0) {
-        updateRestaurant(restaurantId, { dueAmount: numAmount });
-      }
-    }
-  };
-
-  const totalDues = restaurants.reduce((sum, r) => sum + r.dueAmount, 0);
-  const overdueCount = restaurantsWithPaymentStatus.filter(r => r.isOverdue).length;
-  const upcomingCount = restaurantsWithPaymentStatus.filter(r => r.isUpcoming).length;
+  const dueCount = restaurantsWithStatus.filter(r => !r.isPaid).length;
+  const paidCount = restaurantsWithStatus.filter(r => r.isPaid).length;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-gray-900 mb-2">Payment Management</h1>
-        <p className="text-gray-600">Track and notify restaurants about pending payments</p>
+        <p className="text-gray-600">Track restaurant payment status and send reminders</p>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-red-50 text-red-600">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <span className="text-red-600">{overdueCount} overdue</span>
-          </div>
-          <p className="text-gray-600 text-sm mb-1">Total Outstanding</p>
-          <p className="text-gray-900 text-2xl">₹{totalDues.toLocaleString()}</p>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 rounded-lg bg-orange-50 text-orange-600">
-              <Clock className="w-6 h-6" />
+              <AlertCircle className="w-6 h-6" />
             </div>
-            <span className="text-orange-600">{upcomingCount} upcoming</span>
+            <span className="text-orange-600 text-sm font-medium">{dueCount} restaurant{dueCount !== 1 ? 's' : ''}</span>
           </div>
-          <p className="text-gray-600 text-sm mb-1">Due This Week</p>
-          <p className="text-gray-900 text-2xl">{upcomingCount}</p>
+          <p className="text-gray-600 text-sm mb-1">Payment Due</p>
+          <p className="text-gray-900 text-2xl">{dueCount}</p>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -110,12 +77,10 @@ export default function PaymentManagement() {
             <div className="p-3 rounded-lg bg-green-50 text-green-600">
               <CheckCircle className="w-6 h-6" />
             </div>
-            <span className="text-green-600">Up to date</span>
+            <span className="text-green-600 text-sm font-medium">Up to date</span>
           </div>
           <p className="text-gray-600 text-sm mb-1">Paid Restaurants</p>
-          <p className="text-gray-900 text-2xl">
-            {restaurantsWithPaymentStatus.filter(r => r.isPaid).length}
-          </p>
+          <p className="text-gray-900 text-2xl">{paidCount}</p>
         </div>
       </div>
 
@@ -138,10 +103,9 @@ export default function PaymentManagement() {
             onChange={e => setFilterStatus(e.target.value as any)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
           >
-            <option value="all">All Status</option>
-            <option value="overdue">Overdue</option>
-            <option value="upcoming">Due This Week</option>
-            <option value="paid">Paid Up</option>
+            <option value="all">All</option>
+            <option value="due">Payment Due</option>
+            <option value="paid">Paid</option>
           </select>
         </div>
       </div>
@@ -158,9 +122,6 @@ export default function PaymentManagement() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-gray-900 text-sm">Restaurant</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Plan</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Due Amount</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Next Due Date</th>
                   <th className="px-6 py-3 text-left text-gray-900 text-sm">Status</th>
                   <th className="px-6 py-3 text-left text-gray-900 text-sm">Actions</th>
                 </tr>
@@ -169,9 +130,7 @@ export default function PaymentManagement() {
                 {filteredRestaurants.map(restaurant => (
                   <tr
                     key={restaurant.id}
-                    className={`hover:bg-gray-50 ${
-                      restaurant.isOverdue ? 'bg-red-50' : ''
-                    }`}
+                    className={`hover:bg-gray-50 ${!restaurant.isPaid ? 'bg-orange-50' : ''}`}
                   >
                     <td className="px-6 py-4">
                       <div>
@@ -179,79 +138,21 @@ export default function PaymentManagement() {
                         <p className="text-gray-600 text-sm">{restaurant.email}</p>
                         {restaurant.pendingNotifications > 0 && (
                           <span className="inline-block mt-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
-                            {restaurant.pendingNotifications} pending notification
-                            {restaurant.pendingNotifications > 1 ? 's' : ''}
+                            {restaurant.pendingNotifications} pending reminder{restaurant.pendingNotifications > 1 ? 's' : ''}
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs capitalize ${
-                          restaurant.subscription === 'premium'
-                            ? 'bg-purple-100 text-purple-700'
-                            : restaurant.subscription === 'basic'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {restaurant.subscription}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleUpdateDueAmount(restaurant.id, restaurant.dueAmount)}
-                        className="text-gray-900 hover:text-purple-600"
-                      >
-                        ₹{restaurant.dueAmount.toLocaleString()}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        {restaurant.nextPaymentDue ? (
-                          <>
-                            <p className="text-gray-700">
-                              {new Date(restaurant.nextPaymentDue).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </p>
-                            {restaurant.isOverdue && (
-                              <p className="text-red-600 text-xs">
-                                {Math.floor(
-                                  (today.getTime() - new Date(restaurant.nextPaymentDue).getTime()) /
-                                    (1000 * 60 * 60 * 24)
-                                )}{' '}
-                                days overdue
-                              </p>
-                            )}
-                          </>
-                        ) : (
-                          <p className="text-gray-500">Not set</p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      {restaurant.isOverdue ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs">
-                          <AlertCircle className="w-3 h-3" />
-                          Overdue
-                        </span>
-                      ) : restaurant.isUpcoming ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                          <Clock className="w-3 h-3" />
-                          Due Soon
-                        </span>
-                      ) : restaurant.isPaid ? (
+                      {restaurant.isPaid ? (
                         <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                           <CheckCircle className="w-3 h-3" />
                           Paid
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-                          <DollarSign className="w-3 h-3" />
-                          Active
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                          <AlertCircle className="w-3 h-3" />
+                          Payment Due
                         </span>
                       )}
                     </td>
@@ -265,15 +166,17 @@ export default function PaymentManagement() {
                           <Send className="w-4 h-4" />
                           Notify
                         </button>
-                        {restaurant.dueAmount > 0 && (
-                          <button
-                            onClick={() => handleMarkAsPaid(restaurant.id)}
-                            className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                            title="Mark as paid"
-                          >
-                            Paid
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleTogglePaid(restaurant.id, restaurant.isPaid)}
+                          className={`px-3 py-1.5 rounded-lg transition-colors text-sm ${
+                            restaurant.isPaid
+                              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                          title={restaurant.isPaid ? 'Mark as payment due' : 'Mark as paid'}
+                        >
+                          {restaurant.isPaid ? 'Mark Due' : 'Mark Paid'}
+                        </button>
                       </div>
                     </td>
                   </tr>

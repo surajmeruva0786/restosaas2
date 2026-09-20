@@ -4,7 +4,6 @@ import { useSuperAdmin } from '../../contexts/SuperAdminContext';
 import {
   LayoutDashboard,
   Store,
-  BarChart3,
   Settings,
   LogOut,
   X,
@@ -38,7 +37,6 @@ export default function SuperAdminLayout({ children }: SuperAdminLayoutProps) {
     { path: '/superadmin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/superadmin/restaurants', label: 'Restaurants', icon: Store },
     { path: '/superadmin/payments', label: 'Payments', icon: DollarSign },
-    { path: '/superadmin/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/superadmin/settings', label: 'Settings', icon: Settings },
   ];
 

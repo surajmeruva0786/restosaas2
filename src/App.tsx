@@ -24,7 +24,6 @@ import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import RestaurantsManagement from './pages/superadmin/RestaurantsManagement';
 import PaymentManagement from './pages/superadmin/PaymentManagement';
-import SuperAdminAnalytics from './pages/superadmin/SuperAdminAnalytics';
 import SuperAdminSettings from './pages/superadmin/SuperAdminSettings';
 
 // Layouts
@@ -89,7 +88,6 @@ export default function App() {
                       <Route path="dashboard" element={<SuperAdminDashboard />} />
                       <Route path="restaurants" element={<RestaurantsManagement />} />
                       <Route path="payments" element={<PaymentManagement />} />
-                      <Route path="analytics" element={<SuperAdminAnalytics />} />
                       <Route path="settings" element={<SuperAdminSettings />} />
                     </Routes>
                   </SuperAdminLayout>
