@@ -1,5 +1,5 @@
-import { UtensilsCrossed, ShoppingBag, Phone, MessageCircle } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { UtensilsCrossed, ShoppingBag, Phone, Home, MessageCircle } from 'lucide-react';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useData } from '../contexts/DataContext';
 
@@ -7,6 +7,7 @@ export default function MobileActionBar() {
   const { slug } = useParams();
   const { totalItems, openCart } = useCart();
   const { settings } = useData();
+  const location = useLocation();
 
   const handleCall = () => {
     window.location.href = `tel:${settings.phone}`;
@@ -16,46 +17,44 @@ export default function MobileActionBar() {
     window.open(`https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
   };
 
+  const isActive = (path: string) => location.pathname === `/r/${slug}${path}`;
+
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
-      <div className="grid grid-cols-4 gap-1 p-2">
-        <Link
-          to={`/r/${slug}/menu`}
-          className="flex flex-col items-center gap-1 py-2 text-gray-700 hover:text-orange-600"
-        >
-          <UtensilsCrossed className="w-5 h-5" />
-          <span className="text-xs">Menu</span>
-        </Link>
+    <div className="mab-root">
+      <Link
+        to={`/r/${slug}`}
+        className={`mab-item ${isActive('') ? 'mab-item-active' : ''}`}
+      >
+        <Home className="mab-icon" />
+        <span className="mab-label">Home</span>
+      </Link>
 
-        <button
-          onClick={openCart}
-          className="flex flex-col items-center gap-1 py-2 text-gray-700 hover:text-orange-600 relative"
-        >
-          <ShoppingBag className="w-5 h-5" />
-          <span className="text-xs">Cart</span>
+      <Link
+        to={`/r/${slug}/menu`}
+        className={`mab-item ${isActive('/menu') ? 'mab-item-active' : ''}`}
+      >
+        <UtensilsCrossed className="mab-icon" />
+        <span className="mab-label">Menu</span>
+      </Link>
+
+      <button onClick={openCart} className="mab-item mab-cart-wrap">
+        <div className="mab-cart-btn">
+          <ShoppingBag className="mab-cart-icon" />
           {totalItems > 0 && (
-            <span className="absolute top-0 right-4 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-              {totalItems}
-            </span>
+            <span className="mab-cart-badge">{totalItems}</span>
           )}
-        </button>
+        </div>
+      </button>
 
-        <button
-          onClick={handleCall}
-          className="flex flex-col items-center gap-1 py-2 text-gray-700 hover:text-orange-600"
-        >
-          <Phone className="w-5 h-5" />
-          <span className="text-xs">Call</span>
-        </button>
+      <button onClick={handleCall} className="mab-item">
+        <Phone className="mab-icon" />
+        <span className="mab-label">Call</span>
+      </button>
 
-        <button
-          onClick={handleWhatsApp}
-          className="flex flex-col items-center gap-1 py-2 text-gray-700 hover:text-orange-600"
-        >
-          <MessageCircle className="w-5 h-5" />
-          <span className="text-xs">WhatsApp</span>
-        </button>
-      </div>
+      <button onClick={handleWhatsApp} className="mab-item">
+        <MessageCircle className="mab-icon" />
+        <span className="mab-label">WhatsApp</span>
+      </button>
     </div>
   );
 }

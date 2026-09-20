@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, User, Phone, Calendar, Clock, Users } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 
 export default function ReservePage() {
@@ -41,24 +41,22 @@ export default function ReservePage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg p-8 text-center max-w-md">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-gray-900 mb-2">Reservation Submitted!</h2>
-          <p className="text-gray-700 mb-6">
-            We've received your reservation request. We'll confirm it shortly.
+      <div className="rp-success-screen">
+        <div className="rp-success-card">
+          <div className="rp-success-icon-wrap">
+            <CheckCircle className="rp-success-icon" />
+          </div>
+          <h2 className="rp-success-title">Reservation Submitted!</h2>
+          <p className="rp-success-sub">
+            We've received your request for <strong>{formData.numberOfPeople}</strong> people on{' '}
+            <strong>{formData.date}</strong> at <strong>{formData.time}</strong>. We'll confirm
+            it shortly.
           </p>
-          <div className="space-y-3">
-            <Link
-              to={`/r/${slug}/menu`}
-              className="block w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-            >
+          <div className="rp-success-actions">
+            <Link to={`/r/${slug}/menu`} className="rp-primary-btn">
               Browse Menu
             </Link>
-            <Link
-              to={`/r/${slug}`}
-              className="block w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+            <Link to={`/r/${slug}`} className="rp-secondary-btn">
               Back to Home
             </Link>
           </div>
@@ -68,123 +66,125 @@ export default function ReservePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="rp-root">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={`/r/${slug}`} className="text-gray-700 hover:text-gray-900">
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-            <div>
-              <h1 className="text-gray-900">Reserve a Table</h1>
-              <p className="text-gray-600 text-sm">{settings.name}</p>
-            </div>
+      <div className="rp-header">
+        <div className="rp-header-inner">
+          <Link to={`/r/${slug}`} className="rp-back-btn" aria-label="Go back">
+            <ArrowLeft className="rp-back-icon" />
+          </Link>
+          <div>
+            <h1 className="rp-header-title">Reserve a Table</h1>
+            <p className="rp-header-sub">{settings.name}</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-gray-700 mb-2">
-                Name *
+      <div className="rp-content">
+        {/* Intro banner */}
+        <div className="rp-banner">
+          <Calendar className="rp-banner-icon" />
+          <div>
+            <p className="rp-banner-title">Book your experience</p>
+            <p className="rp-banner-sub">Reserve your table in just a few steps</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="rp-form">
+          <div className="rp-fields">
+            <div className="rp-field">
+              <label htmlFor="rp-name" className="rp-label">
+                <User className="rp-label-icon" /> Full Name
               </label>
               <input
-                id="name"
+                id="rp-name"
                 type="text"
                 required
                 value={formData.customerName}
-                onChange={e =>
-                  setFormData({ ...formData, customerName: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                onChange={e => setFormData({ ...formData, customerName: e.target.value })}
+                className="rp-input"
                 placeholder="Enter your name"
               />
             </div>
 
-            <div>
-              <label htmlFor="phone" className="block text-gray-700 mb-2">
-                Phone Number *
+            <div className="rp-field">
+              <label htmlFor="rp-phone" className="rp-label">
+                <Phone className="rp-label-icon" /> Phone Number
               </label>
               <input
-                id="phone"
+                id="rp-phone"
                 type="tel"
                 required
                 value={formData.customerPhone}
-                onChange={e =>
-                  setFormData({ ...formData, customerPhone: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                onChange={e => setFormData({ ...formData, customerPhone: e.target.value })}
+                className="rp-input"
                 placeholder="Enter phone number"
               />
             </div>
 
-            <div>
-              <label htmlFor="date" className="block text-gray-700 mb-2">
-                Date *
-              </label>
-              <input
-                id="date"
-                type="date"
-                required
-                value={formData.date}
-                onChange={e => setFormData({ ...formData, date: e.target.value })}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-              />
+            <div className="rp-field-row">
+              <div className="rp-field">
+                <label htmlFor="rp-date" className="rp-label">
+                  <Calendar className="rp-label-icon" /> Date
+                </label>
+                <input
+                  id="rp-date"
+                  type="date"
+                  required
+                  value={formData.date}
+                  onChange={e => setFormData({ ...formData, date: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="rp-input"
+                />
+              </div>
+
+              <div className="rp-field">
+                <label htmlFor="rp-time" className="rp-label">
+                  <Clock className="rp-label-icon" /> Time
+                </label>
+                <input
+                  id="rp-time"
+                  type="time"
+                  required
+                  value={formData.time}
+                  onChange={e => setFormData({ ...formData, time: e.target.value })}
+                  className="rp-input"
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="time" className="block text-gray-700 mb-2">
-                Time *
+            <div className="rp-field">
+              <label htmlFor="rp-people" className="rp-label">
+                <Users className="rp-label-icon" /> Number of Guests
               </label>
-              <input
-                id="time"
-                type="time"
-                required
-                value={formData.time}
-                onChange={e => setFormData({ ...formData, time: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="people" className="block text-gray-700 mb-2">
-                Number of People *
-              </label>
-              <select
-                id="people"
-                required
-                value={formData.numberOfPeople}
-                onChange={e =>
-                  setFormData({ ...formData, numberOfPeople: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-              >
+              <div className="rp-people-grid">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                  <option key={num} value={num}>
-                    {num} {num === 1 ? 'Person' : 'People'}
-                  </option>
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, numberOfPeople: String(num) })}
+                    className={`rp-people-btn ${formData.numberOfPeople === String(num) ? 'rp-people-active' : ''}`}
+                  >
+                    {num}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rp-submit-btn"
             >
-              {isSubmitting ? 'Booking...' : 'Book Table'}
+              {isSubmitting ? 'Booking...' : 'Confirm Reservation'}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-blue-900 text-sm">
-            <strong>Note:</strong> Your reservation will be confirmed by the restaurant. You
-            may receive a call for verification.
+        <div className="rp-note">
+          <p>
+            <strong>Note:</strong> Your reservation will be confirmed by the restaurant. You may
+            receive a call for verification.
           </p>
         </div>
       </div>

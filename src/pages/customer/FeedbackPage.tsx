@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Star, CheckCircle, MessageSquare } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
+
+const RATING_LABELS: Record<number, string> = {
+  1: 'Poor 😞',
+  2: 'Below Average 😕',
+  3: 'Average 😐',
+  4: 'Good 😊',
+  5: 'Excellent 🤩',
+};
 
 export default function FeedbackPage() {
   const { slug } = useParams();
@@ -23,7 +31,7 @@ export default function FeedbackPage() {
     setError('');
 
     if (formData.rating === 0) {
-      alert('Please select a rating');
+      setError('Please select a star rating before submitting.');
       return;
     }
 
@@ -45,24 +53,28 @@ export default function FeedbackPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg p-8 text-center max-w-md">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-gray-900 mb-2">Thank You!</h2>
-          <p className="text-gray-700 mb-6">
-            Your feedback has been submitted. We appreciate your time!
+      <div className="fb-success-screen">
+        <div className="fb-success-card">
+          <div className="fb-success-icon-wrap">
+            <CheckCircle className="fb-success-icon" />
+          </div>
+          <h2 className="fb-success-title">Thank You!</h2>
+          <div className="fb-success-stars">
+            {[1, 2, 3, 4, 5].map(s => (
+              <Star
+                key={s}
+                className={`fb-success-star ${s <= formData.rating ? 'fb-star-filled' : 'fb-star-empty'}`}
+              />
+            ))}
+          </div>
+          <p className="fb-success-sub">
+            Your feedback has been submitted. We truly appreciate you taking the time!
           </p>
-          <div className="space-y-3">
-            <Link
-              to={`/r/${slug}/menu`}
-              className="block w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-            >
+          <div className="fb-success-actions">
+            <Link to={`/r/${slug}/menu`} className="fb-primary-btn">
               Browse Menu
             </Link>
-            <Link
-              to={`/r/${slug}`}
-              className="block w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+            <Link to={`/r/${slug}`} className="fb-secondary-btn">
               Back to Home
             </Link>
           </div>
@@ -71,102 +83,98 @@ export default function FeedbackPage() {
     );
   }
 
+  const displayRating = hoveredRating || formData.rating;
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="fb-root">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={`/r/${slug}`} className="text-gray-700 hover:text-gray-900">
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-            <div>
-              <h1 className="text-gray-900">Share Feedback</h1>
-              <p className="text-gray-600 text-sm">{settings.name}</p>
-            </div>
+      <div className="fb-header">
+        <div className="fb-header-inner">
+          <Link to={`/r/${slug}`} className="fb-back-btn" aria-label="Go back">
+            <ArrowLeft className="fb-back-icon" />
+          </Link>
+          <div>
+            <h1 className="fb-header-title">Share Feedback</h1>
+            <p className="fb-header-sub">{settings.name}</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <div className="space-y-6">
-            <div>
-              <label className="block text-gray-700 mb-3">
-                How was your experience? *
-              </label>
-              <div className="flex gap-2 justify-center">
-                {[1, 2, 3, 4, 5].map(rating => (
-                  <button
-                    key={rating}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, rating })}
-                    onMouseEnter={() => setHoveredRating(rating)}
-                    onMouseLeave={() => setHoveredRating(0)}
-                    className="p-2 transition-transform hover:scale-110"
-                  >
-                    <Star
-                      className={`w-10 h-10 ${
-                        rating <= (hoveredRating || formData.rating)
-                          ? 'fill-orange-400 text-orange-400'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-              {formData.rating > 0 && (
-                <p className="text-center text-gray-600 text-sm mt-2">
-                  {formData.rating === 1 && 'Poor'}
-                  {formData.rating === 2 && 'Below Average'}
-                  {formData.rating === 3 && 'Average'}
-                  {formData.rating === 4 && 'Good'}
-                  {formData.rating === 5 && 'Excellent'}
-                </p>
-              )}
+      <div className="fb-content">
+        <form onSubmit={handleSubmit} className="fb-form">
+          {/* Rating Section */}
+          <div className="fb-rating-card">
+            <div className="fb-rating-header">
+              <MessageSquare className="fb-rating-header-icon" />
+              <h2 className="fb-rating-title">How was your experience?</h2>
             </div>
 
-            <div>
-              <label htmlFor="comment" className="block text-gray-700 mb-2">
-                Your Comments *
+            <div className="fb-stars-row">
+              {[1, 2, 3, 4, 5].map(rating => (
+                <button
+                  key={rating}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, rating })}
+                  onMouseEnter={() => setHoveredRating(rating)}
+                  onMouseLeave={() => setHoveredRating(0)}
+                  className="fb-star-btn"
+                  aria-label={`Rate ${rating} stars`}
+                >
+                  <Star
+                    className={`fb-star ${
+                      rating <= displayRating ? 'fb-star-active' : 'fb-star-inactive'
+                    } ${rating <= displayRating && rating === displayRating ? 'fb-star-last' : ''}`}
+                  />
+                </button>
+              ))}
+            </div>
+
+            {displayRating > 0 && (
+              <p className="fb-rating-label">{RATING_LABELS[displayRating]}</p>
+            )}
+          </div>
+
+          <div className="fb-fields">
+            <div className="fb-field">
+              <label htmlFor="fb-comment" className="fb-label">
+                Your Comments <span className="fb-required">*</span>
               </label>
               <textarea
-                id="comment"
+                id="fb-comment"
                 rows={5}
                 required
                 value={formData.comment}
                 onChange={e => setFormData({ ...formData, comment: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
-                placeholder="Tell us about your experience..."
+                className="fb-input fb-textarea"
+                placeholder="Tell us about your experience — food, service, ambiance..."
               />
             </div>
 
-            <div>
-              <label htmlFor="customerName" className="block text-gray-700 mb-2">
-                Your Name (Optional)
+            <div className="fb-field">
+              <label htmlFor="fb-name" className="fb-label">
+                Your Name
+                <span className="fb-optional-tag">Optional</span>
               </label>
               <input
-                id="customerName"
+                id="fb-name"
                 type="text"
                 value={formData.customerName}
-                onChange={e =>
-                  setFormData({ ...formData, customerName: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                onChange={e => setFormData({ ...formData, customerName: e.target.value })}
+                className="fb-input"
                 placeholder="Enter your name"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="fb-error">
+                <p>{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="fb-submit-btn"
             >
               {loading ? 'Submitting...' : 'Submit Feedback'}
             </button>

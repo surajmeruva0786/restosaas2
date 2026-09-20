@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ShoppingBag, User, Phone, MapPin, FileText } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useData } from '../../contexts/DataContext';
 
@@ -60,13 +60,14 @@ export default function CheckoutPage() {
 
   if (items.length === 0 && !submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg p-8 text-center max-w-md">
-          <p className="text-gray-600 mb-4">Your cart is empty</p>
-          <Link
-            to={`/r/${slug}/menu`}
-            className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-          >
+      <div className="co-empty-screen">
+        <div className="co-empty-card">
+          <div className="co-success-icon-wrap co-bg-gray">
+            <ShoppingBag className="co-success-icon" />
+          </div>
+          <h2 className="co-success-title">Your cart is empty</h2>
+          <p className="co-success-sub">Add some delicious items from our menu.</p>
+          <Link to={`/r/${slug}/menu`} className="co-primary-btn">
             Browse Menu
           </Link>
         </div>
@@ -76,25 +77,21 @@ export default function CheckoutPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg p-8 text-center max-w-md">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-gray-900 mb-2">Order Placed Successfully!</h2>
-          <p className="text-gray-600 mb-6">Order ID: {orderId}</p>
-          <p className="text-gray-700 mb-6">
-            Thank you for your order! We'll get started on it right away.
+      <div className="co-empty-screen">
+        <div className="co-empty-card">
+          <div className="co-success-icon-wrap co-bg-green">
+            <CheckCircle className="co-success-icon co-icon-green" />
+          </div>
+          <h2 className="co-success-title">Order Placed!</h2>
+          <p className="co-order-id">Order ID: <strong>{orderId}</strong></p>
+          <p className="co-success-sub">
+            Thank you for your order at {settings.name}! We'll get started right away.
           </p>
-          <div className="space-y-3">
-            <Link
-              to={`/r/${slug}/menu`}
-              className="block w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-            >
+          <div className="co-success-actions">
+            <Link to={`/r/${slug}/menu`} className="co-primary-btn">
               Order More
             </Link>
-            <Link
-              to={`/r/${slug}`}
-              className="block w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+            <Link to={`/r/${slug}`} className="co-secondary-btn">
               Back to Home
             </Link>
           </div>
@@ -104,153 +101,145 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="co-root">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={`/r/${slug}/menu`} className="text-gray-700 hover:text-gray-900">
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-            <h1 className="text-gray-900">Checkout</h1>
+      <div className="co-header">
+        <div className="co-header-inner">
+          <Link to={`/r/${slug}/menu`} className="co-back-btn" aria-label="Go back">
+            <ArrowLeft className="co-back-icon" />
+          </Link>
+          <div>
+            <h1 className="co-header-title">Checkout</h1>
+            <p className="co-header-sub">{settings.name}</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="co-content">
         {/* Order Summary */}
-        <div className="bg-white rounded-lg p-6 mb-6">
-          <h2 className="text-gray-900 mb-4">Order Summary</h2>
-          <div className="space-y-3 mb-4">
+        <div className="co-card">
+          <h2 className="co-card-title">Order Summary</h2>
+          <div className="co-order-items">
             {items.map(item => (
-              <div key={item.id} className="flex justify-between text-sm">
-                <span className="text-gray-700">
-                  {item.name} x {item.quantity}
-                </span>
-                <span className="text-gray-900">₹{item.price * item.quantity}</span>
+              <div key={item.id} className="co-order-item">
+                <div className="co-order-item-left">
+                  <div className={`co-item-veg ${item.isVeg ? 'co-veg' : 'co-nonveg'}`}>
+                    <div className={`co-item-dot ${item.isVeg ? 'co-dot-veg' : 'co-dot-nonveg'}`} />
+                  </div>
+                  <span className="co-item-name">{item.name}</span>
+                  <span className="co-item-qty">× {item.quantity}</span>
+                </div>
+                <span className="co-item-total">₹{item.price * item.quantity}</span>
               </div>
             ))}
           </div>
-          <div className="border-t border-gray-200 pt-3 flex justify-between">
-            <span className="text-gray-900">Total</span>
-            <span className="text-gray-900">₹{totalPrice}</span>
+          <div className="co-total-row">
+            <span className="co-total-label">Total</span>
+            <span className="co-total-amount">₹{totalPrice}</span>
           </div>
         </div>
 
-        {/* Order Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <h2 className="text-gray-900 mb-4">Your Details</h2>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="co-card">
+          <h2 className="co-card-title">Your Details</h2>
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-gray-700 mb-2">
-                Name *
+          <div className="co-form-fields">
+            <div className="co-field">
+              <label htmlFor="co-name" className="co-label">
+                <User className="co-label-icon" /> Full Name
               </label>
               <input
-                id="name"
+                id="co-name"
                 type="text"
                 required
                 value={formData.customerName}
-                onChange={e =>
-                  setFormData({ ...formData, customerName: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                onChange={e => setFormData({ ...formData, customerName: e.target.value })}
+                className="co-input"
                 placeholder="Enter your name"
               />
             </div>
 
-            <div>
-              <label htmlFor="phone" className="block text-gray-700 mb-2">
-                Mobile Number *
+            <div className="co-field">
+              <label htmlFor="co-phone" className="co-label">
+                <Phone className="co-label-icon" /> Mobile Number
               </label>
               <input
-                id="phone"
+                id="co-phone"
                 type="tel"
                 required
                 value={formData.customerPhone}
-                onChange={e =>
-                  setFormData({ ...formData, customerPhone: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                onChange={e => setFormData({ ...formData, customerPhone: e.target.value })}
+                className="co-input"
                 placeholder="Enter mobile number"
               />
             </div>
 
-            <div>
-              <label className="block text-gray-700 mb-2">Order Type *</label>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="co-field">
+              <label className="co-label">
+                <MapPin className="co-label-icon" /> Order Type
+              </label>
+              <div className="co-order-type-grid">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, orderType: 'dine-in' })}
-                  className={`px-4 py-3 border rounded-lg transition-colors ${
-                    formData.orderType === 'dine-in'
-                      ? 'border-orange-500 bg-orange-50 text-orange-600'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
+                  className={`co-type-btn ${formData.orderType === 'dine-in' ? 'co-type-active' : ''}`}
                 >
-                  Dine-in
+                  🍽️ Dine-in
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    setFormData({ ...formData, orderType: 'takeaway', tableNumber: '' })
-                  }
-                  className={`px-4 py-3 border rounded-lg transition-colors ${
-                    formData.orderType === 'takeaway'
-                      ? 'border-orange-500 bg-orange-50 text-orange-600'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
+                  onClick={() => setFormData({ ...formData, orderType: 'takeaway', tableNumber: '' })}
+                  className={`co-type-btn ${formData.orderType === 'takeaway' ? 'co-type-active' : ''}`}
                 >
-                  Takeaway
+                  🛍️ Takeaway
                 </button>
               </div>
             </div>
 
             {formData.orderType === 'dine-in' && (
-              <div>
-                <label htmlFor="table" className="block text-gray-700 mb-2">
-                  Table Number *
+              <div className="co-field">
+                <label htmlFor="co-table" className="co-label">
+                  Table Number
                 </label>
                 <input
-                  id="table"
+                  id="co-table"
                   type="text"
                   required
                   value={formData.tableNumber}
-                  onChange={e =>
-                    setFormData({ ...formData, tableNumber: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-                  placeholder="Enter table number"
+                  onChange={e => setFormData({ ...formData, tableNumber: e.target.value })}
+                  className="co-input"
+                  placeholder="e.g. Table 5"
                 />
               </div>
             )}
 
-            <div>
-              <label htmlFor="notes" className="block text-gray-700 mb-2">
-                Special Instructions (Optional)
+            <div className="co-field">
+              <label htmlFor="co-notes" className="co-label">
+                <FileText className="co-label-icon" /> Special Instructions
+                <span className="co-optional-tag">Optional</span>
               </label>
               <textarea
-                id="notes"
+                id="co-notes"
                 rows={3}
                 value={formData.notes}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none"
-                placeholder="Any special requests?"
+                className="co-input co-textarea"
+                placeholder="Any special requests or dietary requirements?"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="co-error">
+                <p>{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="co-submit-btn"
             >
-              {loading ? 'Placing Order...' : `Place Order - ₹${totalPrice}`}
+              {loading ? 'Placing Order...' : `Place Order · ₹${totalPrice}`}
             </button>
           </div>
         </form>
