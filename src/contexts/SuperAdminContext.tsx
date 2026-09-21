@@ -39,10 +39,21 @@ export interface PaymentNotification {
   status: 'pending' | 'read' | 'paid';
 }
 
+export interface PlatformPayment {
+  id: string;
+  restaurantId: string;
+  restaurantName: string;
+  type: 'setup' | 'monthly';
+  amount: number;
+  paidAt: string;
+}
+
 interface SuperAdminContextType {
   isSuperAdmin: boolean;
   restaurants: Restaurant[];
   notifications: PaymentNotification[];
+  platformPayments: PlatformPayment[];
+  totalRevenue: number;
   loading: boolean;
   superAdminLogin: (username: string, password: string) => boolean;
   superAdminLogout: () => void;
@@ -55,6 +66,7 @@ interface SuperAdminContextType {
   getRestaurantNotifications: (restaurantId: string) => PaymentNotification[];
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markNotificationAsPaid: (notificationId: string) => Promise<void>;
+  recordPayment: (restaurantId: string, type: 'setup' | 'monthly') => Promise<void>;
 }
 
 const SuperAdminContext = createContext<SuperAdminContextType | undefined>(undefined);
@@ -63,7 +75,10 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [notifications, setNotifications] = useState<PaymentNotification[]>([]);
+  const [platformPayments, setPlatformPayments] = useState<PlatformPayment[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const totalRevenue = platformPayments.reduce((sum, p) => sum + p.amount, 0);
 
   useEffect(() => {
     const auth = localStorage.getItem('superAdminAuth');
@@ -82,12 +97,17 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
       setNotifications(data);
     });
 
+    // Subscribe to platform payments (revenue)
+    const unsubscribePlatformPayments = firebaseService.subscribeToPlatformPayments((data) => {
+      setPlatformPayments(data);
+    });
+
     // Seed initial data if needed
     firebaseService.seedInitialData();
 
     // One-time sync: Initialize settings for existing restaurants
     const syncSettings = async () => {
-      const hasRunSync = localStorage.getItem('settingsSyncedV2'); // Changed flag name to re-run
+      const hasRunSync = localStorage.getItem('settingsSyncedV2');
       if (!hasRunSync) {
         try {
           const restaurants = await firebaseService.getRestaurants();
@@ -119,11 +139,11 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
     return () => {
       unsubscribeRestaurants();
       unsubscribeNotifications();
+      unsubscribePlatformPayments();
     };
   }, []);
 
   const superAdminLogin = (username: string, password: string) => {
-    // Super admin credentials
     if (username === 'superadmin' && password === 'super123') {
       setIsSuperAdmin(true);
       localStorage.setItem('superAdminAuth', 'true');
@@ -225,12 +245,49 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Records a platform payment to Firestore and marks the restaurant as paid.
+   * type='setup'   → ₹1,500 one-time setup fee
+   * type='monthly' → ₹1,000 monthly fee
+   */
+  const recordPayment = async (restaurantId: string, type: 'setup' | 'monthly') => {
+    try {
+      const restaurant = restaurants.find(r => r.id === restaurantId);
+      if (!restaurant) return;
+
+      const amount = type === 'setup' ? 1500 : 1000;
+
+      // 1. Store the payment record in platformPayments collection
+      await firebaseService.addPlatformPayment({
+        restaurantId,
+        restaurantName: restaurant.name,
+        type,
+        amount,
+      });
+
+      // 2. Mark the restaurant as paid (dueAmount = 0) and update subscription
+      //    to 'premium' (Paid Up) after setup, or keep 'basic' (Monthly Due) cycle
+      await firebaseService.updateRestaurant(restaurantId, {
+        dueAmount: 0,
+        lastPaymentDate: new Date().toISOString(),
+        // After setup fee → flip to monthly due next cycle; after monthly → stays monthly
+        subscription: type === 'setup' ? 'basic' : 'premium',
+        nextPaymentDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+    } catch (error) {
+      console.error('Error recording payment:', error);
+      throw error;
+    }
+  };
+
   return (
     <SuperAdminContext.Provider
       value={{
         isSuperAdmin,
         restaurants,
         notifications,
+        platformPayments,
+        totalRevenue,
         loading,
         superAdminLogin,
         superAdminLogout,
@@ -243,6 +300,7 @@ export function SuperAdminProvider({ children }: { children: ReactNode }) {
         getRestaurantNotifications,
         markNotificationAsRead,
         markNotificationAsPaid,
+        recordPayment,
       }}
     >
       {children}

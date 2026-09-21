@@ -1,9 +1,9 @@
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
-import { Store, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Store, CheckCircle, XCircle, AlertCircle, IndianRupee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SuperAdminDashboard() {
-  const { restaurants } = useSuperAdmin();
+  const { restaurants, totalRevenue } = useSuperAdmin();
 
   const totalRestaurants = restaurants.length;
   const activeRestaurants = restaurants.filter(r => r.isActive).length;
@@ -37,6 +37,13 @@ export default function SuperAdminDashboard() {
       value: paymentDueCount,
       icon: AlertCircle,
       color: 'bg-orange-50 text-orange-600',
+      link: '/superadmin/payments',
+    },
+    {
+      label: 'Total Revenue',
+      value: `₹${totalRevenue.toLocaleString()}`,
+      icon: IndianRupee,
+      color: 'bg-purple-50 text-purple-600',
       link: '/superadmin/payments',
     },
   ];

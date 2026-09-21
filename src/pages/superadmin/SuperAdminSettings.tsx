@@ -6,16 +6,14 @@ export default function SuperAdminSettings() {
     platformName: 'Restaurant Management Platform',
     supportEmail: 'support@platform.com',
     supportPhone: '+91 1234567890',
-    trialDuration: '14',
-    basicPrice: '999',
-    premiumPrice: '2999',
+    setupFee: '1500',
+    monthlyFee: '1000',
   });
 
   const [saved, setSaved] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, save to backend
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -80,50 +78,57 @@ export default function SuperAdminSettings() {
             </div>
           </div>
 
-          {/* Subscription Settings */}
+          {/* Pricing */}
           <div className="pt-6 border-t border-gray-200">
-            <h2 className="text-gray-900 mb-4">Subscription Settings</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-gray-700 mb-2">Trial Duration (Days)</label>
+            <h2 className="text-gray-900 mb-1">Pricing</h2>
+            <p className="text-gray-500 text-sm mb-4">
+              One-time setup fee + recurring monthly fee per restaurant
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <label className="block text-purple-800 font-semibold mb-1">
+                  One-Time Setup Fee (₹)
+                </label>
+                <p className="text-purple-600 text-xs mb-3">Charged once at onboarding</p>
                 <input
                   type="number"
                   min="0"
-                  value={formData.trialDuration}
+                  value={formData.setupFee}
                   onChange={e =>
-                    setFormData({ ...formData, trialDuration: e.target.value })
+                    setFormData({ ...formData, setupFee: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700 mb-2">Basic Plan Price (₹)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.basicPrice}
-                    onChange={e =>
-                      setFormData({ ...formData, basicPrice: e.target.value })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 mb-2">Premium Plan Price (₹)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.premiumPrice}
-                    onChange={e =>
-                      setFormData({ ...formData, premiumPrice: e.target.value })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                  />
-                </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <label className="block text-blue-800 font-semibold mb-1">
+                  Monthly Fee (₹)
+                </label>
+                <p className="text-blue-600 text-xs mb-3">Recurring every month</p>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.monthlyFee}
+                  onChange={e =>
+                    setFormData({ ...formData, monthlyFee: e.target.value })
+                  }
+                  className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white"
+                />
               </div>
+            </div>
+
+            {/* Summary */}
+            <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-700">
+              <p>
+                <span className="font-medium">Year 1 total:</span>{' '}
+                ₹{(parseInt(formData.setupFee || '0') + parseInt(formData.monthlyFee || '0') * 12).toLocaleString()}
+                {' '}(setup + 12 months)
+              </p>
+              <p className="mt-1">
+                <span className="font-medium">From Year 2:</span>{' '}
+                ₹{(parseInt(formData.monthlyFee || '0') * 12).toLocaleString()} per year
+              </p>
             </div>
           </div>
 

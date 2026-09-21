@@ -17,7 +17,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase.config';
 import type { MenuItem, Category, Order, Reservation, Feedback, RestaurantSettings } from '../contexts/DataContext';
-import type { Restaurant, PaymentNotification } from '../contexts/SuperAdminContext';
+import type { Restaurant, PaymentNotification, PlatformPayment } from '../contexts/SuperAdminContext';
 
 // ==================== RESTAURANT OPERATIONS ====================
 
@@ -435,6 +435,33 @@ export const subscribeToPaymentNotifications = (callback: (notifications: Paymen
         const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PaymentNotification));
         callback(notifications);
     });
+};
+
+// ==================== PLATFORM PAYMENTS OPERATIONS ====================
+
+export const addPlatformPayment = async (payment: Omit<PlatformPayment, 'id' | 'paidAt'>): Promise<string> => {
+    const cleanPayment = Object.fromEntries(
+        Object.entries({
+            ...payment,
+            paidAt: Timestamp.now().toDate().toISOString(),
+        }).filter(([_, value]) => value !== undefined)
+    );
+    const docRef = await addDoc(collection(db, 'platformPayments'), cleanPayment);
+    return docRef.id;
+};
+
+export const subscribeToPlatformPayments = (callback: (payments: PlatformPayment[]) => void) => {
+    const q = query(collection(db, 'platformPayments'), orderBy('paidAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+        const payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlatformPayment));
+        callback(payments);
+    });
+};
+
+export const getPlatformPayments = async (): Promise<PlatformPayment[]> => {
+    const q = query(collection(db, 'platformPayments'), orderBy('paidAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlatformPayment));
 };
 
 // ==================== SEED DATA ====================

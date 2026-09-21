@@ -146,13 +146,17 @@ export default function RestaurantsManagement() {
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs ${
                           restaurant.subscription === 'premium'
-                            ? 'bg-purple-100 text-purple-700'
+                            ? 'bg-green-100 text-green-700'
                             : restaurant.subscription === 'basic'
                             ? 'bg-blue-100 text-blue-700'
-                            : 'bg-gray-100 text-gray-700'
+                            : 'bg-orange-100 text-orange-700'
                         }`}
                       >
-                        {restaurant.subscription}
+                        {restaurant.subscription === 'premium'
+                          ? 'Paid Up'
+                          : restaurant.subscription === 'basic'
+                          ? 'Monthly Due'
+                          : 'Setup Due'}
                       </span>
                     </td>
                     <td className="px-6 py-4">

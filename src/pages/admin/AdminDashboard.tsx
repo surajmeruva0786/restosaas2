@@ -87,8 +87,10 @@ export default function AdminDashboard() {
               </p>
               <p className={`text-xs mt-0.5 ${isPaid ? 'text-green-700' : 'text-orange-700'}`}>
                 {isPaid
-                  ? 'Your account is up to date.'
-                  : 'Your account has a pending payment. Please contact your account manager.'}
+                  ? 'Your account is up to date. Thank you!'
+                  : restaurantData.subscription === 'trial'
+                  ? 'One-time setup fee of ₹1,500 is pending. Please contact your account manager.'
+                  : 'Monthly fee of ₹1,000 is pending. Please contact your account manager.'}
               </p>
             </div>
           </div>
