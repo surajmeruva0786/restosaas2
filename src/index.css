@@ -2411,27 +2411,15 @@ body {
   text-shadow: 0 2px 20px rgba(0,0,0,.4);
 }
 
-/* Cuisine tags */
-.rh-cuisine-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
+/* Cuisine — dot separated text */
+.rh-cuisine-text {
+  font-size: .95rem;
+  font-weight: 400;
+  color: rgba(255,255,255,.55);
+  letter-spacing: .08em;
+  text-transform: uppercase;
   margin-bottom: 2.5rem;
 }
-.rh-cuisine-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .35rem .9rem;
-  border-radius: 999px;
-  background: rgba(200,134,42,.15);
-  border: 1px solid rgba(200,134,42,.3);
-  color: #fbbf24;
-  font-size: .8rem;
-  font-weight: 500;
-  letter-spacing: .01em;
-}
-.rh-cuisine-icon { width: 11px; height: 11px; }
 
 /* CTA grid */
 .rh-cta-grid {

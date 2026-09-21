@@ -11,7 +11,6 @@ import {
   Info,
   Navigation,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react';
 import MobileActionBar from '../../components/MobileActionBar';
 import CartDrawer from '../../components/CartDrawer';
@@ -79,15 +78,10 @@ export default function RestaurantHome() {
           {/* Restaurant Title — the main attraction */}
           <h1 className="rh-restaurant-title">{settings.name}</h1>
 
-          {/* Cuisine tags */}
-          <div className="rh-cuisine-row">
-            {settings.cuisine.map((c) => (
-              <span key={c} className="rh-cuisine-tag">
-                <Sparkles className="rh-cuisine-icon" />
-                {c}
-              </span>
-            ))}
-          </div>
+          {/* Cuisine — dot-separated, no boxes */}
+          <p className="rh-cuisine-text">
+            {settings.cuisine.join(' · ')}
+          </p>
 
           {/* CTA Buttons */}
           <div className="rh-cta-grid">
@@ -262,8 +256,8 @@ export default function RestaurantHome() {
           </div>
           <div className="rh-about-card">
             <p className="rh-about-desc">
-              Welcome to <strong>{settings.name}</strong>! We serve authentic{' '}
-              {settings.cuisine.join(', ')} cuisine with a passionate focus on quality, taste,
+              Welcome to <strong>{settings.name}</strong>. We serve authentic{' '}
+              {settings.cuisine.join(' · ')} cuisine with a passionate focus on quality, taste,
               and an unforgettable dining experience.
             </p>
 

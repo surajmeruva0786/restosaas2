@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Lock, User, Store } from 'lucide-react';
+import { Lock, User, Store, ArrowRight } from 'lucide-react';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ export default function AdminLogin() {
   });
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/admin/dashboard');
@@ -25,112 +25,228 @@ export default function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    const success = await login(
-      formData.username,
-      formData.password,
-      formData.restaurantId
-    );
+    const success = await login(formData.username, formData.password, formData.restaurantId);
+    setLoading(false);
 
     if (success) {
       navigate('/admin/dashboard');
     } else {
-      setError('Invalid credentials. Try username: admin, password: admin123');
+      setError('Invalid credentials. Please check your restaurant ID, username, and password.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-            <Store className="w-8 h-8 text-orange-600" />
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      background: '#f9fafb',
+      fontFamily: "'Inter', sans-serif",
+    }}>
+      {/* Left panel — branding */}
+      <div style={{
+        display: 'none',
+        flex: '0 0 420px',
+        background: 'linear-gradient(160deg, #1c0a00 0%, #7c2d12 60%, #ea580c 100%)',
+        padding: '3rem',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }} className="lg:flex lg:flex-col">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+          <div style={{
+            width: 40, height: 40,
+            background: 'rgba(255,255,255,.15)',
+            borderRadius: 12,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '1px solid rgba(255,255,255,.2)',
+          }}>
+            <Store size={20} color="#fff" />
           </div>
-          <h1 className="text-gray-900 mb-2">Restaurant Admin</h1>
-          <p className="text-gray-600">Sign in to manage your restaurant</p>
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.1rem' }}>
+            Restosas
+          </span>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="restaurantId" className="block text-gray-700 mb-2">
-              Restaurant ID
-            </label>
-            <div className="relative">
-              <Store className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="restaurantId"
-                type="text"
-                required
-                value={formData.restaurantId}
-                onChange={e =>
-                  setFormData({ ...formData, restaurantId: e.target.value })
-                }
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-                placeholder="demo-restaurant"
-              />
+        <div>
+          <h1 style={{
+            fontSize: '2.25rem',
+            fontWeight: 700,
+            color: '#fff',
+            lineHeight: 1.2,
+            marginBottom: '1rem',
+            fontFamily: "'Playfair Display', Georgia, serif",
+          }}>
+            Manage your restaurant with confidence
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,.65)', fontSize: '1rem', lineHeight: 1.7 }}>
+            Orders, reservations, menu, and feedback — all in one place.
+          </p>
+        </div>
+
+        <p style={{ color: 'rgba(255,255,255,.35)', fontSize: '.8rem' }}>
+          © {new Date().getFullYear()} Restosas. All rights reserved.
+        </p>
+      </div>
+
+      {/* Right panel — form */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem 1.5rem',
+      }}>
+        <div style={{ width: '100%', maxWidth: 400 }}>
+          {/* Mobile brand */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '.625rem', marginBottom: '2.5rem',
+          }} className="lg:hidden">
+            <div style={{
+              width: 36, height: 36,
+              background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+              borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(234,88,12,.3)',
+            }}>
+              <Store size={18} color="#fff" />
             </div>
+            <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
+              Restosas Admin
+            </span>
           </div>
 
-          <div>
-            <label htmlFor="username" className="block text-gray-700 mb-2">
-              Username
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={e => setFormData({ ...formData, username: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-                placeholder="admin"
-              />
+          <h2 style={{
+            fontSize: '1.625rem', fontWeight: 700,
+            color: '#111827', marginBottom: '.375rem',
+          }}>Sign in</h2>
+          <p style={{ color: '#6b7280', fontSize: '.9rem', marginBottom: '2rem' }}>
+            Enter your credentials to access the dashboard
+          </p>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
+            {/* Restaurant ID */}
+            <div>
+              <label style={{ display: 'block', fontSize: '.8rem', fontWeight: 600, color: '#374151', marginBottom: '.375rem' }}>
+                Restaurant ID
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Store size={15} color="#9ca3af" style={{
+                  position: 'absolute', left: 12, top: '50%',
+                  transform: 'translateY(-50%)',
+                }} />
+                <input
+                  type="text"
+                  required
+                  value={formData.restaurantId}
+                  onChange={e => setFormData({ ...formData, restaurantId: e.target.value })}
+                  placeholder="your-restaurant-id"
+                  style={{
+                    width: '100%', padding: '.75rem .875rem .75rem 2.25rem',
+                    border: '1px solid #e5e7eb', borderRadius: 10,
+                    fontSize: '.9rem', color: '#111827',
+                    outline: 'none', boxSizing: 'border-box',
+                    background: '#fff', transition: 'border-color .15s',
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#ea580c'}
+                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label htmlFor="password" className="block text-gray-700 mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={e => setFormData({ ...formData, password: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-                placeholder="••••••••"
-              />
+            {/* Username */}
+            <div>
+              <label style={{ display: 'block', fontSize: '.8rem', fontWeight: 600, color: '#374151', marginBottom: '.375rem' }}>
+                Username
+              </label>
+              <div style={{ position: 'relative' }}>
+                <User size={15} color="#9ca3af" style={{
+                  position: 'absolute', left: 12, top: '50%',
+                  transform: 'translateY(-50%)',
+                }} />
+                <input
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={e => setFormData({ ...formData, username: e.target.value })}
+                  placeholder="admin"
+                  style={{
+                    width: '100%', padding: '.75rem .875rem .75rem 2.25rem',
+                    border: '1px solid #e5e7eb', borderRadius: 10,
+                    fontSize: '.9rem', color: '#111827',
+                    outline: 'none', boxSizing: 'border-box',
+                    background: '#fff', transition: 'border-color .15s',
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#ea580c'}
+                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                />
+              </div>
             </div>
-          </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-700 text-sm">{error}</p>
+            {/* Password */}
+            <div>
+              <label style={{ display: 'block', fontSize: '.8rem', fontWeight: 600, color: '#374151', marginBottom: '.375rem' }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={15} color="#9ca3af" style={{
+                  position: 'absolute', left: 12, top: '50%',
+                  transform: 'translateY(-50%)',
+                }} />
+                <input
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={e => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="••••••••"
+                  style={{
+                    width: '100%', padding: '.75rem .875rem .75rem 2.25rem',
+                    border: '1px solid #e5e7eb', borderRadius: 10,
+                    fontSize: '.9rem', color: '#111827',
+                    outline: 'none', boxSizing: 'border-box',
+                    background: '#fff', transition: 'border-color .15s',
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#ea580c'}
+                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                />
+              </div>
             </div>
-          )}
 
-          <button
-            type="submit"
-            className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Sign In
-          </button>
-        </form>
+            {error && (
+              <div style={{
+                padding: '.75rem 1rem',
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
+                borderRadius: 10,
+                fontSize: '.85rem', color: '#dc2626',
+              }}>
+                {error}
+              </div>
+            )}
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-900 text-sm">
-              <strong>Demo Credentials:</strong>
-              <br />
-              Username: admin
-              <br />
-              Password: admin123
-            </p>
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.5rem',
+                padding: '.875rem',
+                background: loading ? '#f97316' : 'linear-gradient(135deg, #ea580c, #c2410c)',
+                color: '#fff', border: 'none', borderRadius: 10,
+                fontSize: '.9rem', fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(234,88,12,.35)',
+                transition: 'opacity .15s',
+                opacity: loading ? .8 : 1,
+              }}
+            >
+              {loading ? 'Signing in…' : (
+                <>
+                  Sign in <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </form>
         </div>
       </div>
     </div>

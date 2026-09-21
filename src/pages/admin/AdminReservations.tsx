@@ -1,21 +1,8 @@
 import { useData } from '../../contexts/DataContext';
-import { Calendar, Clock, Users, Phone, User } from 'lucide-react';
+import { Calendar, Clock, Users, Phone, User, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export default function AdminReservations() {
   const { reservations, updateReservationStatus } = useData();
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'confirmed':
-        return 'bg-green-100 text-green-700 border-green-200';
-      case 'cancelled':
-        return 'bg-red-100 text-red-700 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
 
   const sortedReservations = [...reservations].sort((a, b) => {
     const dateA = new Date(`${a.date} ${a.time}`);
@@ -23,97 +10,175 @@ export default function AdminReservations() {
     return dateB.getTime() - dateA.getTime();
   });
 
+  const statusConfig = {
+    pending: {
+      label: 'Pending',
+      icon: AlertCircle,
+      style: { background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' },
+    },
+    confirmed: {
+      label: 'Confirmed',
+      icon: CheckCircle,
+      style: { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' },
+    },
+    cancelled: {
+      label: 'Cancelled',
+      icon: XCircle,
+      style: { background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' },
+    },
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-gray-900">Reservations</h1>
-        <div className="text-gray-600">
-          Total: {reservations.length}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#111827', margin: 0 }}>Reservations</h1>
+          <p style={{ color: '#6b7280', fontSize: '.875rem', margin: '4px 0 0' }}>
+            {reservations.length} total · {reservations.filter(r => r.status === 'confirmed').length} confirmed
+          </p>
         </div>
       </div>
 
       {reservations.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">No reservations yet</p>
+        <div style={{
+          background: '#fff', border: '1px solid #f3f4f6', borderRadius: 16,
+          padding: '4rem 2rem', textAlign: 'center',
+        }}>
+          <div style={{
+            width: 56, height: 56,
+            background: '#f3f4f6', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 1rem',
+          }}>
+            <Calendar size={24} color="#9ca3af" />
+          </div>
+          <p style={{ color: '#374151', fontWeight: 600, fontSize: '1rem', margin: '0 0 .375rem' }}>No reservations yet</p>
+          <p style={{ color: '#9ca3af', fontSize: '.875rem', margin: 0 }}>Reservations will appear here once customers book</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Customer</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Contact</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Date & Time</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">People</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Status</th>
-                  <th className="px-6 py-3 text-left text-gray-900 text-sm">Actions</th>
+        <div style={{ background: '#fff', border: '1px solid #f3f4f6', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  {['Customer', 'Date & Time', 'Guests', 'Contact', 'Status', 'Action'].map(h => (
+                    <th key={h} style={{
+                      padding: '1rem 1.25rem',
+                      textAlign: 'left',
+                      fontSize: '.75rem',
+                      fontWeight: 700,
+                      color: '#6b7280',
+                      letterSpacing: '.06em',
+                      textTransform: 'uppercase',
+                      background: '#fafafa',
+                      whiteSpace: 'nowrap',
+                    }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {sortedReservations.map(reservation => (
-                  <tr key={reservation.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-900">{reservation.customerName}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-700">{reservation.customerPhone}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <span>
-                            {new Date(reservation.date).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
+              <tbody>
+                {sortedReservations.map((reservation, idx) => {
+                  const config = statusConfig[reservation.status as keyof typeof statusConfig] || statusConfig.pending;
+                  const Icon = config.icon;
+                  return (
+                    <tr key={reservation.id} style={{
+                      borderBottom: idx < sortedReservations.length - 1 ? '1px solid #f9fafb' : 'none',
+                      transition: 'background .12s',
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafafa'}
+                      onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
+                    >
+                      {/* Customer */}
+                      <td style={{ padding: '1rem 1.25rem', whiteSpace: 'nowrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.625rem' }}>
+                          <div style={{
+                            width: 32, height: 32,
+                            background: 'linear-gradient(135deg, #fff7ed, #fed7aa)',
+                            borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                          }}>
+                            <User size={14} color="#ea580c" />
+                          </div>
+                          <span style={{ fontSize: '.9rem', fontWeight: 600, color: '#111827' }}>
+                            {reservation.customerName}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Date & Time */}
+                      <td style={{ padding: '1rem 1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.375rem', marginBottom: '.25rem' }}>
+                          <Calendar size={13} color="#9ca3af" />
+                          <span style={{ fontSize: '.85rem', color: '#374151' }}>
+                            {new Date(reservation.date).toLocaleDateString('en-IN', {
+                              weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
                             })}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <Clock className="w-4 h-4 text-gray-400" />
-                          <span>{reservation.time}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.375rem' }}>
+                          <Clock size={13} color="#9ca3af" />
+                          <span style={{ fontSize: '.85rem', color: '#6b7280' }}>{reservation.time}</span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Users className="w-4 h-4 text-gray-400" />
-                        <span>{reservation.numberOfPeople}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs border ${getStatusColor(
-                          reservation.status
-                        )}`}
-                      >
-                        {reservation.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <select
-                        value={reservation.status}
-                        onChange={e =>
-                          updateReservationStatus(reservation.id, e.target.value as any)
-                        }
-                        className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+
+                      {/* Guests */}
+                      <td style={{ padding: '1rem 1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.375rem' }}>
+                          <Users size={14} color="#9ca3af" />
+                          <span style={{ fontSize: '.9rem', color: '#374151', fontWeight: 500 }}>
+                            {reservation.numberOfPeople} {reservation.numberOfPeople === 1 ? 'guest' : 'guests'}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Contact */}
+                      <td style={{ padding: '1rem 1.25rem', whiteSpace: 'nowrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.375rem' }}>
+                          <Phone size={13} color="#9ca3af" />
+                          <span style={{ fontSize: '.85rem', color: '#6b7280' }}>{reservation.customerPhone}</span>
+                        </div>
+                      </td>
+
+                      {/* Status badge */}
+                      <td style={{ padding: '1rem 1.25rem' }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '.35rem',
+                          padding: '.3rem .75rem', borderRadius: 999,
+                          fontSize: '.75rem', fontWeight: 600,
+                          ...config.style,
+                        }}>
+                          <Icon size={12} />
+                          {config.label}
+                        </span>
+                      </td>
+
+                      {/* Action */}
+                      <td style={{ padding: '1rem 1.25rem' }}>
+                        <select
+                          value={reservation.status}
+                          onChange={e => updateReservationStatus(reservation.id, e.target.value as any)}
+                          style={{
+                            padding: '.4rem .75rem',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: 8,
+                            fontSize: '.8rem',
+                            color: '#374151',
+                            background: '#fff',
+                            outline: 'none',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          <option value="pending">Set Pending</option>
+                          <option value="confirmed">Confirm</option>
+                          <option value="cancelled">Cancel</option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

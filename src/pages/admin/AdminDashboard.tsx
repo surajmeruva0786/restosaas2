@@ -1,65 +1,75 @@
 import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
-import { ShoppingBag, Calendar, MessageSquare, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Calendar, MessageSquare, TrendingUp, AlertCircle, CheckCircle, Star, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PaymentNotificationBanner from '../../components/PaymentNotificationBanner';
 
 export default function AdminDashboard() {
-  const { orders, reservations, feedbacks, settings, loading } = useData();
+  const { orders, reservations, feedbacks, settings } = useData();
   const { restaurantId } = useAuth();
   const { restaurants } = useSuperAdmin();
 
-  // Debug logging
-  console.log('AdminDashboard - Loading:', loading);
-  console.log('AdminDashboard - Orders:', orders.length, orders);
-  console.log('AdminDashboard - Reservations:', reservations.length, reservations);
-
   const today = new Date().toISOString().split('T')[0];
-  const todayOrders = orders.filter(
-    order => order.createdAt.split('T')[0] === today
-  );
-  // Only count completed orders towards revenue
+  const todayOrders = orders.filter(order => order.createdAt.split('T')[0] === today);
   const totalRevenue = orders
     .filter(order => order.status === 'completed')
     .reduce((sum, order) => sum + order.total, 0);
+
+  const pendingReservations = reservations.filter(r => r.status === 'pending').length;
+  const newOrders = orders.filter(o => o.status === 'new').length;
+  const avgRating = feedbacks.length > 0
+    ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length).toFixed(1)
+    : '—';
 
   const stats = [
     {
       label: 'Total Orders',
       value: orders.length,
+      sub: `${newOrders} new`,
       icon: ShoppingBag,
-      color: 'bg-orange-50 text-orange-600',
+      iconBg: '#fff7ed', iconColor: '#ea580c',
       link: '/admin/orders',
     },
     {
-      label: 'Total Reservations',
+      label: 'Reservations',
       value: reservations.length,
+      sub: `${pendingReservations} pending`,
       icon: Calendar,
-      color: 'bg-green-50 text-green-600',
+      iconBg: '#f0fdf4', iconColor: '#16a34a',
       link: '/admin/reservations',
     },
     {
-      label: 'Total Revenue',
-      value: `₹${totalRevenue}`,
+      label: 'Revenue',
+      value: `₹${totalRevenue.toLocaleString()}`,
+      sub: `${todayOrders.length} orders today`,
       icon: TrendingUp,
-      color: 'bg-purple-50 text-purple-600',
+      iconBg: '#faf5ff', iconColor: '#7c3aed',
       link: '/admin/orders',
     },
     {
-      label: 'Total Feedback',
-      value: feedbacks.length,
-      icon: MessageSquare,
-      color: 'bg-blue-50 text-blue-600',
+      label: 'Avg Rating',
+      value: avgRating,
+      sub: `${feedbacks.length} reviews`,
+      icon: Star,
+      iconBg: '#fffbeb', iconColor: '#d97706',
       link: '/admin/feedback',
     },
   ];
 
   const recentOrders = orders.slice(0, 5);
-  const recentFeedbacks = feedbacks.slice(0, 5);
+  const recentFeedbacks = feedbacks.slice(0, 4);
+
+  const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
+    new:       { label: 'New',       bg: '#fff7ed', color: '#ea580c' },
+    accepted:  { label: 'Accepted',  bg: '#f0fdfa', color: '#0d9488' },
+    preparing: { label: 'Preparing', bg: '#eff6ff', color: '#2563eb' },
+    completed: { label: 'Completed', bg: '#f0fdf4', color: '#16a34a' },
+    rejected:  { label: 'Rejected',  bg: '#fef2f2', color: '#dc2626' },
+  };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: "'Inter', sans-serif" }}>
       {/* Payment Notifications (from super admin) */}
       <PaymentNotificationBanner />
 
@@ -69,25 +79,24 @@ export default function AdminDashboard() {
         if (!restaurantData) return null;
         const isPaid = restaurantData.dueAmount === 0;
         return (
-          <div
-            className={`flex items-center gap-3 px-5 py-4 rounded-lg border ${
-              isPaid
-                ? 'bg-green-50 border-green-200'
-                : 'bg-orange-50 border-orange-200'
-            }`}
-          >
-            {isPaid ? (
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
-            )}
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: '.875rem',
+            padding: '1rem 1.25rem',
+            borderRadius: 12,
+            background: isPaid ? '#f0fdf4' : '#fff7ed',
+            border: `1px solid ${isPaid ? '#bbf7d0' : '#fed7aa'}`,
+          }}>
+            {isPaid
+              ? <CheckCircle size={18} color="#16a34a" style={{ flexShrink: 0, marginTop: 2 }} />
+              : <AlertCircle size={18} color="#ea580c" style={{ flexShrink: 0, marginTop: 2 }} />
+            }
             <div>
-              <p className={`font-semibold text-sm ${isPaid ? 'text-green-800' : 'text-orange-800'}`}>
-                {isPaid ? 'Payment Status: Paid' : 'Payment Status: Due'}
+              <p style={{ margin: 0, fontWeight: 600, fontSize: '.875rem', color: isPaid ? '#15803d' : '#c2410c' }}>
+                {isPaid ? 'Account is up to date' : 'Payment Due'}
               </p>
-              <p className={`text-xs mt-0.5 ${isPaid ? 'text-green-700' : 'text-orange-700'}`}>
+              <p style={{ margin: '2px 0 0', fontSize: '.8rem', color: isPaid ? '#166534' : '#9a3412' }}>
                 {isPaid
-                  ? 'Your account is up to date. Thank you!'
+                  ? 'All payments have been received. Thank you!'
                   : restaurantData.subscription === 'trial'
                   ? 'One-time setup fee of ₹1,500 is pending. Please contact your account manager.'
                   : 'Monthly fee of ₹1,000 is pending. Please contact your account manager.'}
@@ -97,118 +106,172 @@ export default function AdminDashboard() {
         );
       })()}
 
+      {/* Greeting */}
       <div>
-        <h1 className="text-gray-900 mb-2">Welcome back!</h1>
-        <p className="text-gray-600">Here's what's happening with {settings.name} today</p>
+        <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#111827', margin: 0 }}>
+          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}
+        </h1>
+        <p style={{ color: '#6b7280', fontSize: '.875rem', margin: '4px 0 0' }}>
+          Here's an overview of {settings.name}
+        </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <Link
               key={index}
               to={stat.link}
-              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              style={{
+                background: '#fff',
+                border: '1px solid #f3f4f6',
+                borderRadius: 16,
+                padding: '1.25rem 1.5rem',
+                textDecoration: 'none',
+                display: 'block',
+                transition: 'box-shadow .15s, transform .15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 20px rgba(0,0,0,.08)';
+                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none';
+                (e.currentTarget as HTMLAnchorElement).style.transform = 'none';
+              }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <Icon className="w-6 h-6" />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <div style={{
+                  width: 40, height: 40,
+                  background: stat.iconBg,
+                  borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon size={18} color={stat.iconColor} />
                 </div>
+                <ArrowRight size={14} color="#d1d5db" />
               </div>
-              <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
-              <p className="text-gray-900 text-2xl">{stat.value}</p>
+              <p style={{ margin: '0 0 .25rem', fontSize: '.8rem', color: '#9ca3af', fontWeight: 500 }}>
+                {stat.label}
+              </p>
+              <p style={{ margin: '0 0 .25rem', fontSize: '1.75rem', fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>
+                {stat.value}
+              </p>
+              <p style={{ margin: 0, fontSize: '.75rem', color: '#9ca3af' }}>{stat.sub}</p>
             </Link>
           );
         })}
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         {/* Recent Orders */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-gray-900">Recent Orders</h2>
-            <Link to="/admin/orders" className="text-orange-600 hover:text-orange-700 text-sm">
-              View All →
+        <div style={{ background: '#fff', border: '1px solid #f3f4f6', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{
+            padding: '1.125rem 1.5rem',
+            borderBottom: '1px solid #f9fafb',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>Recent Orders</h2>
+            <Link to="/admin/orders" style={{
+              display: 'flex', alignItems: 'center', gap: '.25rem',
+              fontSize: '.8rem', color: '#ea580c', textDecoration: 'none', fontWeight: 500,
+            }}>
+              View all <ArrowRight size={13} />
             </Link>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div>
             {recentOrders.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">No orders yet</div>
+              <div style={{ padding: '2.5rem', textAlign: 'center', color: '#9ca3af', fontSize: '.875rem' }}>
+                No orders yet
+              </div>
             ) : (
-              recentOrders.map(order => (
-                <div key={order.id} className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="text-gray-900">{order.customerName}</p>
-                      <p className="text-gray-600 text-sm">
-                        {order.items.length} items • ₹{order.total}
+              recentOrders.map((order, idx) => {
+                const sc = statusConfig[order.status] || statusConfig.new;
+                return (
+                  <div key={order.id} style={{
+                    padding: '.875rem 1.5rem',
+                    borderBottom: idx < recentOrders.length - 1 ? '1px solid #f9fafb' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem',
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: 600, fontSize: '.875rem', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {order.customerName}
+                      </p>
+                      <p style={{ margin: '2px 0 0', fontSize: '.75rem', color: '#9ca3af' }}>
+                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'} · ₹{order.total.toLocaleString()}
                       </p>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs ${
-                        order.status === 'new'
-                          ? 'bg-orange-100 text-orange-700'
-                          : order.status === 'accepted'
-                            ? 'bg-teal-100 text-teal-700'
-                            : order.status === 'rejected'
-                              ? 'bg-red-100 text-red-700'
-                              : order.status === 'preparing'
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-green-100 text-green-700'
-                      }`}
-                    >
-                      {order.status}
+                    <span style={{
+                      padding: '.25rem .625rem',
+                      borderRadius: 999,
+                      fontSize: '.72rem',
+                      fontWeight: 600,
+                      background: sc.bg,
+                      color: sc.color,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                    }}>
+                      {sc.label}
                     </span>
                   </div>
-                  <p className="text-gray-500 text-xs">
-                    {new Date(order.createdAt).toLocaleString()}
-                  </p>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
 
         {/* Recent Feedback */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-gray-900">Recent Feedback</h2>
-            <Link to="/admin/feedback" className="text-orange-600 hover:text-orange-700 text-sm">
-              View All →
+        <div style={{ background: '#fff', border: '1px solid #f3f4f6', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{
+            padding: '1.125rem 1.5rem',
+            borderBottom: '1px solid #f9fafb',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>Recent Feedback</h2>
+            <Link to="/admin/feedback" style={{
+              display: 'flex', alignItems: 'center', gap: '.25rem',
+              fontSize: '.8rem', color: '#ea580c', textDecoration: 'none', fontWeight: 500,
+            }}>
+              View all <ArrowRight size={13} />
             </Link>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div>
             {recentFeedbacks.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">No feedback yet</div>
+              <div style={{ padding: '2.5rem', textAlign: 'center', color: '#9ca3af', fontSize: '.875rem' }}>
+                No feedback yet
+              </div>
             ) : (
-              recentFeedbacks.map(feedback => (
-                <div key={feedback.id} className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <span
-                              key={i}
-                              className={`text-sm ${i < feedback.rating ? 'text-orange-400' : 'text-gray-300'
-                                }`}
-                            >
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                        {feedback.customerName && (
-                          <span className="text-gray-700 text-sm">{feedback.customerName}</span>
-                        )}
-                      </div>
-                      <p className="text-gray-600 text-sm line-clamp-2">{feedback.comment}</p>
+              recentFeedbacks.map((feedback, idx) => (
+                <div key={feedback.id} style={{
+                  padding: '.875rem 1.5rem',
+                  borderBottom: idx < recentFeedbacks.length - 1 ? '1px solid #f9fafb' : 'none',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '.375rem' }}>
+                    <p style={{ margin: 0, fontWeight: 600, fontSize: '.875rem', color: '#111827' }}>
+                      {feedback.customerName || 'Anonymous'}
+                    </p>
+                    <div style={{ display: 'flex', gap: 1 }}>
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <Star
+                          key={i}
+                          size={12}
+                          style={{
+                            fill: i <= feedback.rating ? '#f59e0b' : 'none',
+                            color: i <= feedback.rating ? '#f59e0b' : '#d1d5db',
+                          }}
+                        />
+                      ))}
                     </div>
                   </div>
-                  <p className="text-gray-500 text-xs">
-                    {new Date(feedback.createdAt).toLocaleString()}
+                  <p style={{
+                    margin: 0, fontSize: '.8rem', color: '#6b7280', lineHeight: 1.5,
+                    display: '-webkit-box', WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
+                    {feedback.comment}
                   </p>
                 </div>
               ))

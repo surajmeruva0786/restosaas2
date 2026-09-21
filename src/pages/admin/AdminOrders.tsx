@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useData } from '../../contexts/DataContext';
-import { Clock, User, Phone, MapPin, StickyNote, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { Clock, User, Phone, MapPin, StickyNote, CheckCircle, XCircle, RotateCcw, ShoppingBag } from 'lucide-react';
 import type { Order } from '../../contexts/DataContext';
 
 type OrderStatus = Order['status'];
@@ -124,14 +124,29 @@ export default function AdminOrders() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-gray-900">Orders</h1>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-gray-600 text-sm">Filter:</span>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#111827', margin: 0 }}>Orders</h1>
+          <p style={{ color: '#6b7280', fontSize: '.875rem', margin: '4px 0 0' }}>
+            {orders.length} total · {orders.filter(o => o.status === 'new').length} new
+          </p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.625rem' }}>
+          <label style={{ fontSize: '.8rem', color: '#6b7280', fontWeight: 500 }}>Filter</label>
           <select
             value={filter}
             onChange={e => setFilter(e.target.value as any)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm"
+            style={{
+              padding: '.5rem .875rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: 8,
+              fontSize: '.85rem',
+              color: '#374151',
+              background: '#fff',
+              outline: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
           >
             <option value="all">All Orders</option>
             <option value="new">New</option>
@@ -144,8 +159,19 @@ export default function AdminOrders() {
       </div>
 
       {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <p className="text-gray-500">No orders found</p>
+        <div style={{
+          background: '#fff', border: '1px solid #f3f4f6', borderRadius: 16,
+          padding: '4rem 2rem', textAlign: 'center',
+        }}>
+          <div style={{
+            width: 56, height: 56, background: '#fff7ed', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 1rem',
+          }}>
+            <ShoppingBag size={22} color="#ea580c" />
+          </div>
+          <p style={{ color: '#374151', fontWeight: 600, margin: '0 0 .375rem' }}>No orders found</p>
+          <p style={{ color: '#9ca3af', fontSize: '.875rem', margin: 0 }}>Orders will appear here once customers place them</p>
         </div>
       ) : (
         <div className="space-y-4">

@@ -4,12 +4,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   LayoutDashboard,
   ShoppingBag,
-  Menu,
+  BookOpen,
   Calendar,
   MessageSquare,
   Settings,
   LogOut,
   X,
+  Menu,
+  ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,7 +26,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    document.title = 'Restosas Admin';
+    document.title = 'Restaurant Admin';
   }, []);
 
   const handleLogout = () => {
@@ -34,134 +36,219 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const navItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-    { path: '/admin/menu', label: 'Menu', icon: Menu },
+    { path: '/admin/orders',    label: 'Orders',    icon: ShoppingBag },
+    { path: '/admin/menu',      label: 'Menu',      icon: BookOpen },
     { path: '/admin/reservations', label: 'Reservations', icon: Calendar },
-    { path: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
-    { path: '/admin/settings', label: 'Settings', icon: Settings },
+    { path: '/admin/feedback',  label: 'Feedback',  icon: MessageSquare },
+    { path: '/admin/settings',  label: 'Settings',  icon: Settings },
   ];
 
+  const currentLabel = navItems.find(item => item.path === location.pathname)?.label || 'Admin';
+
+  const SidebarContent = ({ onNav }: { onNav?: () => void }) => (
+    <>
+      {/* Brand */}
+      <div style={{
+        padding: '1.75rem 1.5rem 1.25rem',
+        borderBottom: '1px solid rgba(234,88,12,.12)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+          <div style={{
+            width: 36, height: 36,
+            background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+            borderRadius: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(234,88,12,.3)',
+          }}>
+            <ShoppingBag size={18} color="#fff" />
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: '.95rem', color: '#111827', lineHeight: 1.2 }}>
+              Restaurant Admin
+            </p>
+            <p style={{ fontSize: '.72rem', color: '#9ca3af', marginTop: 2 }}>Management Portal</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '1rem .75rem', overflowY: 'auto' }}>
+        <p style={{
+          fontSize: '.65rem', fontWeight: 700, letterSpacing: '.1em',
+          color: '#9ca3af', textTransform: 'uppercase',
+          padding: '.25rem .75rem .75rem',
+        }}>Navigation</p>
+        {navItems.map(item => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={onNav}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '.75rem',
+                padding: '.7rem .875rem',
+                borderRadius: 10,
+                marginBottom: 2,
+                textDecoration: 'none',
+                fontWeight: isActive ? 600 : 500,
+                fontSize: '.875rem',
+                color: isActive ? '#ea580c' : '#4b5563',
+                background: isActive ? '#fff7ed' : 'transparent',
+                transition: 'all .15s ease',
+                position: 'relative',
+              }}
+            >
+              <Icon size={17} style={{ flexShrink: 0, opacity: isActive ? 1 : .7 }} />
+              <span style={{ flex: 1 }}>{item.label}</span>
+              {isActive && <ChevronRight size={14} style={{ opacity: .5 }} />}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Logout */}
+      <div style={{ padding: '.75rem', borderTop: '1px solid #f3f4f6' }}>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '.75rem',
+            width: '100%', padding: '.7rem .875rem',
+            borderRadius: 10, border: 'none', background: 'transparent',
+            cursor: 'pointer', color: '#6b7280', fontSize: '.875rem',
+            fontWeight: 500, transition: 'all .15s ease',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.background = '#fef2f2';
+            (e.currentTarget as HTMLButtonElement).style.color = '#dc2626';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            (e.currentTarget as HTMLButtonElement).style.color = '#6b7280';
+          }}
+        >
+          <LogOut size={17} />
+          <span>Sign out</span>
+        </button>
+      </div>
+    </>
+  );
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex md:flex-col md:w-64 bg-white border-r border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-gray-900">Restaurant Admin</h1>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-orange-50 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
-        </div>
+    <div style={{ display: 'flex', height: '100vh', background: '#f9fafb' }}>
+      {/* Desktop Sidebar */}
+      <aside style={{
+        width: 240, flexShrink: 0,
+        background: '#fff',
+        borderRight: '1px solid #f3f4f6',
+        display: 'flex', flexDirection: 'column',
+        boxShadow: '1px 0 0 #f3f4f6',
+      }} className="hidden md:flex md:flex-col">
+        <SidebarContent />
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,.4)',
+            backdropFilter: 'blur(2px)',
+            zIndex: 40,
+          }}
+          className="md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Mobile */}
+      {/* Mobile Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-50 transform transition-transform md:hidden ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        style={{
+          position: 'fixed', top: 0, left: 0, bottom: 0,
+          width: 240,
+          background: '#fff',
+          borderRight: '1px solid #f3f4f6',
+          display: 'flex', flexDirection: 'column',
+          zIndex: 50,
+          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform .25s cubic-bezier(.4,0,.2,1)',
+        }}
+        className="md:hidden"
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h1 className="text-gray-900">Restaurant Admin</h1>
-          <button onClick={() => setSidebarOpen(false)} className="text-gray-500">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-orange-50 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-gray-200">
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+          padding: '.875rem 1rem',
+          borderBottom: '1px solid #f3f4f6',
+        }}>
           <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              width: 32, height: 32,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 8, border: 'none', background: '#f3f4f6',
+              cursor: 'pointer', color: '#6b7280',
+            }}
           >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
+            <X size={16} />
           </button>
         </div>
+        <SidebarContent onNav={() => setSidebarOpen(false)} />
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
-          <div className="flex items-center justify-between">
+      {/* Main content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Top bar */}
+        <header style={{
+          background: '#fff',
+          borderBottom: '1px solid #f3f4f6',
+          padding: '0 1.25rem',
+          height: 60,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.875rem' }}>
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden text-gray-500"
+              className="md:hidden"
+              style={{
+                width: 36, height: 36,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: 8, border: '1px solid #e5e7eb',
+                background: '#fff', cursor: 'pointer', color: '#374151',
+              }}
             >
-              <Menu className="w-6 h-6" />
+              <Menu size={18} />
             </button>
-            <h2 className="text-gray-900 md:block hidden">
-              {navItems.find(item => item.path === location.pathname)?.label || 'Admin'}
-            </h2>
-            <div className="text-gray-600 text-sm">
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
+            <div className="hidden md:block">
+              <h2 style={{
+                fontSize: '1rem', fontWeight: 600,
+                color: '#111827', margin: 0,
+              }}>{currentLabel}</h2>
             </div>
+          </div>
+          <div style={{
+            fontSize: '.8rem', color: '#9ca3af', fontWeight: 500,
+          }}>
+            {new Date().toLocaleDateString('en-IN', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            })}
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
+        {/* Page content */}
+        <main style={{
+          flex: 1, overflow: 'auto',
+          padding: '1.5rem',
+        }}>
+          {children}
+        </main>
       </div>
     </div>
   );

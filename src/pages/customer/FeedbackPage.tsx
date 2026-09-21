@@ -4,11 +4,11 @@ import { ArrowLeft, Star, CheckCircle, MessageSquare } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 
 const RATING_LABELS: Record<number, string> = {
-  1: 'Poor 😞',
-  2: 'Below Average 😕',
-  3: 'Average 😐',
-  4: 'Good 😊',
-  5: 'Excellent 🤩',
+  1: 'Poor',
+  2: 'Below Average',
+  3: 'Average',
+  4: 'Good',
+  5: 'Excellent',
 };
 
 export default function FeedbackPage() {
