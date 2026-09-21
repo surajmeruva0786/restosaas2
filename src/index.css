@@ -2306,6 +2306,7 @@ html {
 
   /* ── Legacy aliases (for backward compat) ── */
   --c-red: #991b1b;
+  --c-green: #166534;
   --c-accent-dark: #78350f;
 
   /* ── Radii ── */
