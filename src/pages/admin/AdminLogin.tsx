@@ -48,7 +48,7 @@ export default function AdminLogin() {
       <div style={{
         display: 'none',
         flex: '0 0 420px',
-        background: 'linear-gradient(160deg, #1c0a00 0%, #7c2d12 60%, #ea580c 100%)',
+        background: 'linear-gradient(160deg, #1c0a00 0%, #7c2d12 60%, #b45309 100%)',
         padding: '3rem',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -56,7 +56,7 @@ export default function AdminLogin() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
           <div style={{
             width: 40, height: 40,
-            background: 'rgba(255,255,255,.15)',
+            background: 'linear-gradient(135deg, #b45309, #78350f)',
             borderRadius: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: '1px solid rgba(255,255,255,.2)',
@@ -105,10 +105,10 @@ export default function AdminLogin() {
           }} className="lg:hidden">
             <div style={{
               width: 36, height: 36,
-              background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+              background: 'linear-gradient(135deg, #b45309, #78350f)',
               borderRadius: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(234,88,12,.3)',
+              boxShadow: '0 4px 14px rgba(180,83,9,.3)',
             }}>
               <Store size={18} color="#fff" />
             </div>
@@ -149,7 +149,7 @@ export default function AdminLogin() {
                     outline: 'none', boxSizing: 'border-box',
                     background: '#fff', transition: 'border-color .15s',
                   }}
-                  onFocus={e => e.target.style.borderColor = '#ea580c'}
+                  onFocus={e => e.target.style.borderColor = '#b45309'}
                   onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -178,7 +178,7 @@ export default function AdminLogin() {
                     outline: 'none', boxSizing: 'border-box',
                     background: '#fff', transition: 'border-color .15s',
                   }}
-                  onFocus={e => e.target.style.borderColor = '#ea580c'}
+                  onFocus={e => e.target.style.borderColor = '#b45309'}
                   onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -207,7 +207,7 @@ export default function AdminLogin() {
                     outline: 'none', boxSizing: 'border-box',
                     background: '#fff', transition: 'border-color .15s',
                   }}
-                  onFocus={e => e.target.style.borderColor = '#ea580c'}
+                  onFocus={e => e.target.style.borderColor = '#b45309'}
                   onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -231,11 +231,11 @@ export default function AdminLogin() {
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.5rem',
                 padding: '.875rem',
-                background: loading ? '#f97316' : 'linear-gradient(135deg, #ea580c, #c2410c)',
+                background: loading ? '#b45309' : 'linear-gradient(135deg, #b45309, #78350f)',
                 color: '#fff', border: 'none', borderRadius: 10,
                 fontSize: '.9rem', fontWeight: 600,
                 cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 14px rgba(234,88,12,.35)',
+                boxShadow: '0 4px 14px rgba(180,83,9,.35)',
                 transition: 'opacity .15s',
                 opacity: loading ? .8 : 1,
               }}

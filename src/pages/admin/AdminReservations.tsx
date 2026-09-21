@@ -14,17 +14,17 @@ export default function AdminReservations() {
     pending: {
       label: 'Pending',
       icon: AlertCircle,
-      style: { background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' },
+      style: { background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a' },
     },
     confirmed: {
       label: 'Confirmed',
       icon: CheckCircle,
-      style: { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' },
+      style: { background: '#f0fdf4', color: '#166534', border: '1px solid #dcfce7' },
     },
     cancelled: {
       label: 'Cancelled',
       icon: XCircle,
-      style: { background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' },
+      style: { background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' },
     },
   };
 
@@ -94,12 +94,12 @@ export default function AdminReservations() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '.625rem' }}>
                           <div style={{
                             width: 32, height: 32,
-                            background: 'linear-gradient(135deg, #fff7ed, #fed7aa)',
+                            background: 'linear-gradient(135deg, #fffbeb, #fde68a)',
                             borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
                           }}>
-                            <User size={14} color="#ea580c" />
+                            <User size={14} color="#b45309" />
                           </div>
                           <span style={{ fontSize: '.9rem', fontWeight: 600, color: '#111827' }}>
                             {reservation.customerName}

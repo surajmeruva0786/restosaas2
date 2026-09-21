@@ -164,11 +164,11 @@ export default function AdminOrders() {
           padding: '4rem 2rem', textAlign: 'center',
         }}>
           <div style={{
-            width: 56, height: 56, background: '#fff7ed', borderRadius: '50%',
+            width: 56, height: 56, background: '#fffbeb', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1rem',
           }}>
-            <ShoppingBag size={22} color="#ea580c" />
+            <ShoppingBag size={22} color="#b45309" />
           </div>
           <p style={{ color: '#374151', fontWeight: 600, margin: '0 0 .375rem' }}>No orders found</p>
           <p style={{ color: '#9ca3af', fontSize: '.875rem', margin: 0 }}>Orders will appear here once customers place them</p>

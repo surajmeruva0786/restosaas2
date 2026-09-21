@@ -28,7 +28,7 @@ export default function AdminDashboard() {
       value: orders.length,
       sub: `${newOrders} new`,
       icon: ShoppingBag,
-      iconBg: '#fff7ed', iconColor: '#ea580c',
+      iconBg: '#fffbeb', iconColor: '#b45309',
       link: '/admin/orders',
     },
     {
@@ -36,7 +36,7 @@ export default function AdminDashboard() {
       value: reservations.length,
       sub: `${pendingReservations} pending`,
       icon: Calendar,
-      iconBg: '#f0fdf4', iconColor: '#16a34a',
+      iconBg: '#fffbeb', iconColor: '#b45309',
       link: '/admin/reservations',
     },
     {
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
       value: `₹${totalRevenue.toLocaleString()}`,
       sub: `${todayOrders.length} orders today`,
       icon: TrendingUp,
-      iconBg: '#faf5ff', iconColor: '#7c3aed',
+      iconBg: '#fffbeb', iconColor: '#b45309',
       link: '/admin/orders',
     },
     {
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
       value: avgRating,
       sub: `${feedbacks.length} reviews`,
       icon: Star,
-      iconBg: '#fffbeb', iconColor: '#d97706',
+      iconBg: '#fffbeb', iconColor: '#b45309',
       link: '/admin/feedback',
     },
   ];
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
   const recentFeedbacks = feedbacks.slice(0, 4);
 
   const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
-    new:       { label: 'New',       bg: '#fff7ed', color: '#ea580c' },
+    new:       { label: 'New',       bg: '#fffbeb', color: '#b45309' },
     accepted:  { label: 'Accepted',  bg: '#f0fdfa', color: '#0d9488' },
     preparing: { label: 'Preparing', bg: '#eff6ff', color: '#2563eb' },
     completed: { label: 'Completed', bg: '#f0fdf4', color: '#16a34a' },
@@ -88,10 +88,10 @@ export default function AdminDashboard() {
           }}>
             {isPaid
               ? <CheckCircle size={18} color="#16a34a" style={{ flexShrink: 0, marginTop: 2 }} />
-              : <AlertCircle size={18} color="#ea580c" style={{ flexShrink: 0, marginTop: 2 }} />
+              : <AlertCircle size={18} color="#b45309" style={{ flexShrink: 0, marginTop: 2 }} />
             }
             <div>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: '.875rem', color: isPaid ? '#15803d' : '#c2410c' }}>
+              <p style={{ margin: 0, fontWeight: 600, fontSize: '.875rem', color: isPaid ? '#15803d' : '#92400e' }}>
                 {isPaid ? 'Account is up to date' : 'Payment Due'}
               </p>
               <p style={{ margin: '2px 0 0', fontSize: '.8rem', color: isPaid ? '#166534' : '#9a3412' }}>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
             <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>Recent Orders</h2>
             <Link to="/admin/orders" style={{
               display: 'flex', alignItems: 'center', gap: '.25rem',
-              fontSize: '.8rem', color: '#ea580c', textDecoration: 'none', fontWeight: 500,
+              fontSize: '.8rem', color: '#b45309', textDecoration: 'none', fontWeight: 500,
             }}>
               View all <ArrowRight size={13} />
             </Link>
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
             <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>Recent Feedback</h2>
             <Link to="/admin/feedback" style={{
               display: 'flex', alignItems: 'center', gap: '.25rem',
-              fontSize: '.8rem', color: '#ea580c', textDecoration: 'none', fontWeight: 500,
+              fontSize: '.8rem', color: '#b45309', textDecoration: 'none', fontWeight: 500,
             }}>
               View all <ArrowRight size={13} />
             </Link>

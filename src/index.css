@@ -2270,31 +2270,57 @@ html {
    ============================================================ */
 
 :root {
+  /* ── Surfaces ── */
   --c-bg: #f8f7f4;
   --c-surface: #ffffff;
   --c-surface-2: #faf9f7;
-  --c-border: #ede9e1;
+  --c-border: #e8e4dc;
   --c-border-2: #f0ece4;
+
+  /* ── Text ── */
   --c-text-primary: #1a1410;
   --c-text-secondary: #6b6259;
   --c-text-muted: #9e948a;
-  --c-accent: #c8862a;       /* warm gold */
-  --c-accent-light: #fef3e2;
-  --c-accent-dark: #a86e1e;
+
+  /* ── Single accent ── */
+  --c-accent: #b45309;        /* warm amber — the ONE brand color */
+  --c-accent-hover: #92400e;  /* darker for hover */
+  --c-accent-light: #fffbeb;  /* very light tint */
+  --c-accent-border: #fde68a; /* subtle border tint */
+  --c-accent-dark: #78350f;   /* deep for hero gradients */
+
+  /* ── Hero gradient ── */
   --c-hero-from: #1c120a;
   --c-hero-to: #2e1c0d;
-  --c-green: #16a34a;
-  --c-red: #dc2626;
-  --c-indigo: #4f46e5;
-  --c-rose: #e11d48;
+
+  /* ── Semantic only (never decorative) ── */
+  --c-success: #166534;
+  --c-success-bg: #f0fdf4;
+  --c-success-border: #dcfce7;
+  --c-error: #991b1b;
+  --c-error-bg: #fef2f2;
+  --c-error-border: #fecaca;
+  --c-warning: #92400e;
+  --c-warning-bg: #fffbeb;
+  --c-warning-border: #fde68a;
+
+  /* ── Legacy aliases (for backward compat) ── */
+  --c-red: #991b1b;
+  --c-accent-dark: #78350f;
+
+  /* ── Radii ── */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
+
+  /* ── Shadows ── */
   --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
   --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
   --shadow-lg: 0 12px 40px rgba(0,0,0,.12), 0 4px 16px rgba(0,0,0,.06);
   --shadow-xl: 0 24px 64px rgba(0,0,0,.16);
+
+  /* ── Motion ── */
   --transition: 0.2s cubic-bezier(.4,0,.2,1);
 }
 
@@ -2508,13 +2534,10 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.rh-icon-amber { background: #fef3e2; }
-.rh-icon-rose  { background: #fff1f2; }
-.rh-icon-emerald{ background: #f0fdf4; }
-.rh-info-icon { width: 18px; height: 18px; }
-.rh-icon-amber .rh-info-icon { color: #d97706; }
-.rh-icon-rose  .rh-info-icon { color: #e11d48; }
-.rh-icon-emerald .rh-info-icon { color: #16a34a; }
+.rh-icon-amber,
+.rh-icon-rose,
+.rh-icon-emerald { background: var(--c-accent-light); }
+.rh-info-icon { width: 18px; height: 18px; color: var(--c-accent); }
 
 .rh-info-label {
   font-size: .7rem;
@@ -2631,13 +2654,10 @@ body {
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 1rem;
 }
-.rh-bg-amber   { background: #fef3e2; }
-.rh-bg-indigo  { background: #eef2ff; }
-.rh-bg-rose    { background: #fff1f2; }
-.rh-section-icon { width: 28px; height: 28px; }
-.rh-bg-amber .rh-section-icon  { color: #d97706; }
-.rh-bg-indigo .rh-section-icon { color: var(--c-indigo); }
-.rh-bg-rose .rh-section-icon   { color: var(--c-rose); }
+.rh-bg-amber,
+.rh-bg-indigo,
+.rh-bg-rose { background: var(--c-accent-light); }
+.rh-section-icon { width: 28px; height: 28px; color: var(--c-accent); }
 
 .rh-section-card-title {
   font-size: 1.1rem;
@@ -2667,10 +2687,10 @@ body {
   box-shadow: 0 4px 16px rgba(200,134,42,.3);
 }
 .rh-action-btn:hover { background: var(--c-accent-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,134,42,.4); }
-.rh-btn-indigo { background: var(--c-indigo); box-shadow: 0 4px 16px rgba(79,70,229,.25); }
-.rh-btn-indigo:hover { background: #4338ca; box-shadow: 0 8px 24px rgba(79,70,229,.35); }
-.rh-btn-rose { background: var(--c-rose); box-shadow: 0 4px 16px rgba(225,29,72,.25); }
-.rh-btn-rose:hover { background: #be123c; box-shadow: 0 8px 24px rgba(225,29,72,.35); }
+.rh-btn-indigo,
+.rh-btn-rose { background: var(--c-accent); box-shadow: 0 4px 16px rgba(180,83,9,.25); }
+.rh-btn-indigo:hover,
+.rh-btn-rose:hover { background: var(--c-accent-hover); box-shadow: 0 8px 24px rgba(180,83,9,.35); }
 .rh-btn-chevron { width: 16px; height: 16px; }
 
 /* About card */
@@ -2703,9 +2723,9 @@ body {
   flex-shrink: 0;
 }
 .rh-about-icon { width: 16px; height: 16px; }
-.rh-icon-rose .rh-about-icon    { color: var(--c-rose); }
-.rh-icon-amber .rh-about-icon   { color: #d97706; }
-.rh-icon-emerald .rh-about-icon { color: #16a34a; }
+.rh-icon-rose .rh-about-icon,
+.rh-icon-amber .rh-about-icon,
+.rh-icon-emerald .rh-about-icon { color: var(--c-accent); }
 .rh-about-row-label {
   font-size: .7rem;
   font-weight: 600;
@@ -3893,3 +3913,72 @@ body {
   border: 1.5px solid rgba(255,255,255,.3);
 }
 .fcb-label { letter-spacing: .01em; white-space: nowrap; }
+
+/* ============================================================
+   UNIFIED SINGLE-COLOR THEME OVERRIDES
+   Maps Tailwind's vibrant utility colors (orange, purple, blue, indigo, teal) 
+   to the single professional warm amber scheme.
+   ============================================================ */
+@layer theme {
+  :root, :host {
+    /* Overriding Orange */
+    --color-orange-50: var(--c-accent-light);
+    --color-orange-100: var(--c-accent-border);
+    --color-orange-200: #fcd34d;
+    --color-orange-300: #fbbf24;
+    --color-orange-400: #f59e0b;
+    --color-orange-500: var(--c-accent);
+    --color-orange-600: var(--c-accent);
+    --color-orange-700: var(--c-accent-hover);
+    --color-orange-800: var(--c-accent-dark);
+    --color-orange-900: #451a03;
+
+    /* Overriding Purple (SuperAdmin) */
+    --color-purple-50: var(--c-accent-light);
+    --color-purple-100: var(--c-accent-border);
+    --color-purple-200: #fcd34d;
+    --color-purple-300: #fbbf24;
+    --color-purple-400: #f59e0b;
+    --color-purple-500: var(--c-accent);
+    --color-purple-600: var(--c-accent);
+    --color-purple-700: var(--c-accent-hover);
+    --color-purple-800: var(--c-accent-dark);
+    --color-purple-900: #451a03;
+    
+    /* Overriding Indigo */
+    --color-indigo-50: var(--c-accent-light);
+    --color-indigo-100: var(--c-accent-border);
+    --color-indigo-200: #fcd34d;
+    --color-indigo-300: #fbbf24;
+    --color-indigo-400: #f59e0b;
+    --color-indigo-500: var(--c-accent);
+    --color-indigo-600: var(--c-accent);
+    --color-indigo-700: var(--c-accent-hover);
+    --color-indigo-800: var(--c-accent-dark);
+    --color-indigo-900: #451a03;
+    
+    /* Overriding Teal */
+    --color-teal-50: var(--c-accent-light);
+    --color-teal-100: var(--c-accent-border);
+    --color-teal-200: #fcd34d;
+    --color-teal-300: #fbbf24;
+    --color-teal-400: #f59e0b;
+    --color-teal-500: var(--c-accent);
+    --color-teal-600: var(--c-accent);
+    --color-teal-700: var(--c-accent-hover);
+    --color-teal-800: var(--c-accent-dark);
+    --color-teal-900: #451a03;
+    
+    /* Overriding Blue */
+    --color-blue-50: var(--c-accent-light);
+    --color-blue-100: var(--c-accent-border);
+    --color-blue-200: #fcd34d;
+    --color-blue-300: #fbbf24;
+    --color-blue-400: #f59e0b;
+    --color-blue-500: var(--c-accent);
+    --color-blue-600: var(--c-accent);
+    --color-blue-700: var(--c-accent-hover);
+    --color-blue-800: var(--c-accent-dark);
+    --color-blue-900: #451a03;
+  }
+}

@@ -19,10 +19,10 @@ export default function AdminFeedback() {
   }));
 
   const ratingLabel = (r: number) => {
-    if (r >= 4.5) return { label: 'Excellent', color: '#15803d' };
-    if (r >= 3.5) return { label: 'Good', color: '#ca8a04' };
-    if (r >= 2.5) return { label: 'Average', color: '#ea580c' };
-    return { label: 'Needs Improvement', color: '#dc2626' };
+    if (r >= 4.5) return { label: 'Excellent', color: '#166534' };
+    if (r >= 3.5) return { label: 'Good',      color: '#b45309' };
+    if (r >= 2.5) return { label: 'Average',   color: '#b45309' };
+    return         { label: 'Needs Improvement', color: '#991b1b' };
   };
 
   const { label: rLabel, color: rColor } = ratingLabel(averageRating);
@@ -146,10 +146,10 @@ export default function AdminFeedback() {
                   {/* Avatar */}
                   <div style={{
                     width: 38, height: 38,
-                    background: 'linear-gradient(135deg, #fff7ed, #fed7aa)',
+                    background: 'linear-gradient(135deg, #fffbeb, #fde68a)',
                     borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '.9rem', fontWeight: 700, color: '#ea580c',
+                    fontSize: '.9rem', fontWeight: 700, color: '#b45309',
                     flexShrink: 0,
                   }}>
                     {feedback.customerName

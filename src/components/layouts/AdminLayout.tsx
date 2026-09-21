@@ -50,16 +50,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Brand */}
       <div style={{
         padding: '1.75rem 1.5rem 1.25rem',
-        borderBottom: '1px solid rgba(234,88,12,.12)',
+        borderBottom: '1px solid rgba(180,83,9,.12)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
           <div style={{
             width: 36, height: 36,
-            background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+            background: 'linear-gradient(135deg, #b45309, #78350f)',
             borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(234,88,12,.3)',
+            boxShadow: '0 4px 12px rgba(180,83,9,.3)',
           }}>
             <ShoppingBag size={18} color="#fff" />
           </div>
@@ -97,8 +97,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 textDecoration: 'none',
                 fontWeight: isActive ? 600 : 500,
                 fontSize: '.875rem',
-                color: isActive ? '#ea580c' : '#4b5563',
-                background: isActive ? '#fff7ed' : 'transparent',
+                color: isActive ? '#b45309' : '#4b5563',
+                background: isActive ? '#fffbeb' : 'transparent',
                 transition: 'all .15s ease',
                 position: 'relative',
               }}
